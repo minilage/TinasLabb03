@@ -1,0 +1,90 @@
+﻿<Window x:Class="TinasLabb03.Dialogs.PackOptionsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodel="clr-namespace:TinasLabb03.ViewModel"
+        mc:Ignorable="d"
+        Title="Pack Options"
+        Height="300" Width="250"
+        Background="#FFCCC7C7"
+        WindowStyle="ToolWindow"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Close"
+                        Executed="CloseCommandHandler" />
+    </Window.CommandBindings>
+
+    <Window.InputBindings>
+        <KeyBinding Key="Esc"
+                    Command="ApplicationCommands.Close" />
+    </Window.InputBindings>
+
+    <Grid Margin="5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.ColumnSpan="2">
+            <!-- Pack Name -->
+            <Label Content="Pack Name:"
+                   HorizontalAlignment="Left"
+                   FontWeight="Bold"
+                   FontSize="14" />
+            <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                     BorderBrush="#FF7C7F88" />
+
+            <!-- Difficulty -->
+            <Label Content="Difficulty:"
+                   HorizontalAlignment="Left"
+                   FontWeight="Bold"
+                   FontSize="14" />
+            <ComboBox SelectedItem="{Binding Difficulty, Mode=TwoWay}" 
+                      ItemsSource="{x:Static viewmodel:ConfigurationViewModel.Difficulties}"
+                      BorderBrush="#FF7C7F88"
+                      Margin="2 0 2 0" />
+
+            <!-- Time Limit -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
+                </Grid.ColumnDefinitions>
+
+                <Label Content="Time Limit:"
+                       FontWeight="Bold"
+                       FontSize="14" />
+                <Label Grid.Column="1" 
+                       HorizontalAlignment="Left"
+                       Content="{Binding TimeLimitInSeconds, Mode=TwoWay}"
+                       ContentStringFormat="{}{0} seconds" />
+            </Grid>
+
+            <Slider Value="{Binding TimeLimitInSeconds, Mode=TwoWay}" 
+                    Minimum="5" Maximum="120" 
+                    TickFrequency="5" 
+                    TickPlacement="BottomRight" 
+                    Width="200" 
+                    Foreground="#FF7C7F88" 
+                    IsSnapToTickEnabled="True" />
+
+            <!-- Buttons -->
+            <StackPanel Orientation="Horizontal" 
+                        HorizontalAlignment="Center" 
+                        Margin="0,30,0,0">
+                <Button Content="Save" Width="75" Margin="5"
+                        Click="SaveButton_Click" />
+                <Button Content="Cancel" Width="75" Margin="5"
+                        Click="CancelButton_Click" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>
