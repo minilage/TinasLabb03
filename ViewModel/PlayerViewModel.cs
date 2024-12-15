@@ -126,6 +126,7 @@ namespace TinasLabb03.ViewModel
 
             _currentQuestionIndex = 0;
             _timeLeft = activePack.TimeLimitInSeconds;
+            Score = 0; // Återställ rätta svar
             IsTimeOut = false;
 
             LoadQuestion();
@@ -183,21 +184,21 @@ namespace TinasLabb03.ViewModel
             {
                 if (option == selectedOption)
                 {
-                    // Markera det valda alternativet och avgör färgen
-                    option.IsSelected = true;
+                    // Markera det valda alternativet
                     if (option.IsCorrect)
                     {
-                        option.IsSelected = true; // Markera rätt svar som grönt
+                        option.IsSelected = true; // Rätt svar markeras grönt
+                        Score++; // Öka poängen bara om det är rätt svar
                     }
                     else
                     {
-                        option.IsSelected = false; // Gör det felaktiga valet rött i din converter
+                        option.IsSelected = false; // Felaktigt val markeras inte grönt
                     }
                 }
                 else
                 {
-                    // Avmarkera övriga alternativ, men behåll färgen för det rätta
-                    option.IsSelected = option.IsCorrect; // Endast rätt alternativ hålls markerat
+                    // Markera endast rätt alternativ som grönt
+                    option.IsSelected = option.IsCorrect;
                 }
             }
 
@@ -206,7 +207,11 @@ namespace TinasLabb03.ViewModel
             // Kontrollera om detta var den sista frågan
             if (_currentQuestionIndex + 1 >= mainWindowViewModel.ActivePack.Questions.Count)
             {
-                ShowResultPopup(); // Om sista frågan visas popup
+                // Visa resultatpopup med en fördröjning
+                Task.Delay(1000).ContinueWith(_ =>
+                {
+                    ShowResultPopup();
+                }, TaskScheduler.FromCurrentSynchronizationContext());
             }
             else
             {
@@ -218,6 +223,9 @@ namespace TinasLabb03.ViewModel
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
+
+
+
 
         private void ContinueToNextQuestion(object? obj)
         {
@@ -268,8 +276,11 @@ namespace TinasLabb03.ViewModel
 
         private void ShowResultPopup()
         {
-            MessageBox.Show($"You got {Score} out of {mainWindowViewModel.ActivePack?.Questions.Count} correct!",
-                "Quiz Results", MessageBoxButton.OK);
+            MessageBox.Show(
+                $"You got {Score} out of {mainWindowViewModel.ActivePack?.Questions.Count} correct!",
+                "Quiz Results",
+                MessageBoxButton.OK);
+
             QuitToMainMenu(null);
         }
     }

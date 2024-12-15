@@ -4,6 +4,7 @@ public class AnswerOptionViewModel : ViewModelBase
 {
     private bool _isSelected;
     private bool _isCorrect;
+    private bool _isWrong;
 
     public string Text { get; }
 
@@ -23,6 +24,16 @@ public class AnswerOptionViewModel : ViewModelBase
         set
         {
             _isCorrect = value;
+            RaisePropertyChanged();
+        }
+    }
+
+    public bool IsWrong
+    {
+        get => _isWrong;
+        set
+        {
+            _isWrong = value;
             RaisePropertyChanged();
         }
     }
