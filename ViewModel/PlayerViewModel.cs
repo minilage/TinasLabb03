@@ -179,41 +179,38 @@ namespace TinasLabb03.ViewModel
             if (parameter is not AnswerOptionViewModel selectedOption || mainWindowViewModel.ActivePack == null)
                 return;
 
-            // Markera rätt och fel alternativ
             foreach (var option in Options)
             {
-                // Om användaren tryckt på alternativet
                 if (option == selectedOption)
                 {
-                    option.IsSelected = true; // Markera som valt
-                    option.IsCorrect = option.IsCorrect; // Behåll korrekthetsstatus
+                    // Markera det valda alternativet och avgör färgen
+                    option.IsSelected = true;
+                    if (option.IsCorrect)
+                    {
+                        option.IsSelected = true; // Markera rätt svar som grönt
+                    }
+                    else
+                    {
+                        option.IsSelected = false; // Gör det felaktiga valet rött i din converter
+                    }
                 }
                 else
                 {
-                    // Markera som ej valt och endast rätt alternativ grönt
-                    option.IsSelected = option.IsCorrect;
+                    // Avmarkera övriga alternativ, men behåll färgen för det rätta
+                    option.IsSelected = option.IsCorrect; // Endast rätt alternativ hålls markerat
                 }
             }
 
-            // Uppdatera poäng om svaret är rätt
-            if (selectedOption.IsCorrect)
-            {
-                Score++;
-            }
+            RaisePropertyChanged(nameof(Options)); // Uppdatera UI-bindningarna
 
-            // Uppdatera UI-bindningar
-            RaisePropertyChanged(nameof(Score));
-            RaisePropertyChanged(nameof(Options));
-
-            // Kontrollera om detta är sista frågan
+            // Kontrollera om detta var den sista frågan
             if (_currentQuestionIndex + 1 >= mainWindowViewModel.ActivePack.Questions.Count)
             {
-                // Visa popup om alla frågor är besvarade
-                ShowResultPopup();
+                ShowResultPopup(); // Om sista frågan visas popup
             }
             else
             {
-                // Vänta 2 sekunder innan nästa fråga
+                // Vänta innan nästa fråga visas
                 Task.Delay(2000).ContinueWith(_ =>
                 {
                     _currentQuestionIndex++;
@@ -221,8 +218,6 @@ namespace TinasLabb03.ViewModel
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
-
-
 
         private void ContinueToNextQuestion(object? obj)
         {
