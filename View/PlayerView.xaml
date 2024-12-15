@@ -3,12 +3,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:TinasLabb03.Converters"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
 
     <UserControl.LayoutTransform>
         <ScaleTransform ScaleX="{Binding ScaleFactor}" ScaleY="{Binding ScaleFactor}" />
     </UserControl.LayoutTransform>
+
+    <UserControl.Resources>
+        <local:BoolToColorConverter x:Key="BoolToColorConverter" />
+    </UserControl.Resources>
 
     <Grid Background="#FF97AD96">
         <Grid.RowDefinitions>
@@ -44,50 +49,28 @@
         </StackPanel>
 
         <!-- Svarsalternativ -->
-        <UniformGrid Grid.Row="2"  Rows="2" Columns="2" 
-                     Margin="20" 
-                     VerticalAlignment="Bottom">
-            <Button Content="{Binding Options[0]}" 
-                    Command="{Binding AnswerCommand}" 
-                    CommandParameter="0" 
-                    FontSize="{Binding ButtonFontSize}" 
-                    Height="{Binding ButtonHeight}" 
-                    Background="LightGray" 
-                    Foreground="Black" 
-                    Margin="10" 
-                    Padding="10" 
-                    BorderThickness="0" />
-            <Button Content="{Binding Options[1]}" 
-                    Command="{Binding AnswerCommand}" 
-                    CommandParameter="1" 
-                    FontSize="{Binding ButtonFontSize}" 
-                    Height="{Binding ButtonHeight}" 
-                    Background="LightGray" 
-                    Foreground="Black" 
-                    Margin="10" 
-                    Padding="10" 
-                    BorderThickness="0" />
-            <Button Content="{Binding Options[2]}" 
-                    Command="{Binding AnswerCommand}" 
-                    CommandParameter="2" 
-                    FontSize="{Binding ButtonFontSize}" 
-                    Height="{Binding ButtonHeight}" 
-                    Background="LightGray" 
-                    Foreground="Black" 
-                    Margin="10" 
-                    Padding="10" 
-                    BorderThickness="0" />
-            <Button Content="{Binding Options[3]}" 
-                    Command="{Binding AnswerCommand}" 
-                    CommandParameter="3" 
-                    FontSize="{Binding ButtonFontSize}" 
-                    Height="{Binding ButtonHeight}" 
-                    Background="LightGray" 
-                    Foreground="Black" 
-                    Margin="10" 
-                    Padding="10" 
-                    BorderThickness="0" />
-        </UniformGrid>
+        <ItemsControl Grid.Row="2" 
+                      ItemsSource="{Binding Options}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Rows="2" Columns="2" Margin="20" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Content="{Binding Text}" 
+                            Command="{Binding DataContext.AnswerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                            CommandParameter="{Binding .}" 
+                            FontSize="{Binding DataContext.ButtonFontSize, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                            Height="{Binding DataContext.ButtonHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
+                            Background="{Binding IsSelected, Converter={StaticResource BoolToColorConverter}}" 
+                            Foreground="Black" 
+                            Margin="10" 
+                            Padding="10" 
+                            BorderThickness="0" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
 
         <!-- Popup vid timeout -->
         <Popup IsOpen="{Binding IsTimeOut, Mode=OneWay}" 
@@ -97,12 +80,12 @@
                     Padding="20" 
                     CornerRadius="10">
                 <StackPanel>
-                    <TextBlock  Text="Time's up!" 
-                                FontSize="24" 
-                                FontWeight="Bold" 
-                                Foreground="White" 
-                                TextAlignment="Center" 
-                                Margin="10"/>
+                    <TextBlock Text="Time's up!" 
+                               FontSize="24" 
+                               FontWeight="Bold" 
+                               Foreground="White" 
+                               TextAlignment="Center" 
+                               Margin="10"/>
                     <StackPanel Orientation="Horizontal" 
                                 HorizontalAlignment="Center" 
                                 Margin="10">

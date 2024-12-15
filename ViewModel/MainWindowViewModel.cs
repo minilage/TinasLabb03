@@ -220,12 +220,13 @@ namespace TinasLabb03.ViewModel
                     p.Name,
                     p.Difficulty,
                     p.TimeLimitInSeconds,
-                    new ObservableCollection<Question>(p.Questions.Select(q => new Question(
-                        q.Query,
-                        q.CorrectAnswer,
-                        q.Options.Where(option => option != q.CorrectAnswer).ToArray(),
-                        q.Difficulty
-                    )))
+                new ObservableCollection<Question>(p.Questions.Select(q => new Question(
+                    q.Query,
+                    q.CorrectAnswer,
+                    q.Options.Where(option => option.Text != q.CorrectAnswer).Select(option => option.Text).ToArray(),
+                    q.Difficulty
+                )))
+
                 )).ToArray();
 
                 string json = JsonSerializer.Serialize(packs, JsonOptions);

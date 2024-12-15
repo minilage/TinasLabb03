@@ -1,87 +1,110 @@
 ﻿using System.Collections.ObjectModel;
 using TinasLabb03.Model;
+using TinasLabb03.ViewModel;
 
-namespace TinasLabb03.ViewModel
+public class QuestionViewModel : ViewModelBase
 {
-    public class QuestionViewModel : ViewModelBase
+    private readonly Question model;
+    private string? _selectedAnswer;
+
+    public ObservableCollection<string> IncorrectAnswers { get; }
+    public ObservableCollection<AnswerOptionViewModel> Options { get; }
+
+    public string SelectedAnswer
     {
-        private readonly Question model;
-
-        public ObservableCollection<string> IncorrectAnswers { get; }
-        public ObservableCollection<string> Options { get; }
-
-        public string Query
+        get => _selectedAnswer!;
+        set
         {
-            get => model.Query;
-            set
+            if (_selectedAnswer != value)
             {
-                if (model.Query != value)
-                {
-                    model.Query = value;
-                    RaisePropertyChanged();
-                }
+                _selectedAnswer = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(nameof(IsCorrect));
+                RaisePropertyChanged(nameof(IsIncorrect));
             }
         }
+    }
 
-        public string CorrectAnswer
+    public bool IsCorrect => SelectedAnswer == CorrectAnswer;
+    public bool IsIncorrect => SelectedAnswer != null && SelectedAnswer != CorrectAnswer;
+
+    public string Query
+    {
+        get => model.Query;
+        set
         {
-            get => model.CorrectAnswer;
-            set
+            if (model.Query != value)
             {
-                if (model.CorrectAnswer != value)
-                {
-                    model.CorrectAnswer = value;
-                    RaisePropertyChanged();
-                    UpdateOptions(); // Uppdatera alternativen när CorrectAnswer ändras
-                }
+                model.Query = value;
+                RaisePropertyChanged();
             }
         }
+    }
 
-        public Difficulty Difficulty
+    public string CorrectAnswer
+    {
+        get => model.CorrectAnswer;
+        set
         {
-            get => model.Difficulty;
-            set
+            if (model.CorrectAnswer != value)
             {
-                if (model.Difficulty != value)
-                {
-                    model.Difficulty = value;
-                    RaisePropertyChanged();
-                }
+                model.CorrectAnswer = value;
+                RaisePropertyChanged();
+                UpdateOptions();
             }
         }
+    }
 
-        public QuestionViewModel(Question model)
+    public Difficulty Difficulty
+    {
+        get => model.Difficulty;
+        set
         {
-            this.model = model;
-
-            // Initiera IncorrectAnswers som en ObservableCollection
-            IncorrectAnswers = new ObservableCollection<string>(model.IncorrectAnswers);
-
-            // Prenumerera på förändringar i IncorrectAnswers för att uppdatera modellen och Options
-            IncorrectAnswers.CollectionChanged += (sender, args) =>
+            if (model.Difficulty != value)
             {
-                model.IncorrectAnswers = IncorrectAnswers.ToArray();
-                RaisePropertyChanged(nameof(IncorrectAnswers));
-                UpdateOptions(); // Uppdatera alternativen när IncorrectAnswers ändras
-            };
-
-            // Generera svarsalternativ (Options) baserat på IncorrectAnswers och CorrectAnswer
-            Options = new ObservableCollection<string>(
-                model.IncorrectAnswers.Append(model.CorrectAnswer).OrderBy(_ => Guid.NewGuid())
-            );
-        }
-
-        private void UpdateOptions()
-        {
-            Options.Clear();
-
-            // Lägg till alternativen i slumpmässig ordning
-            foreach (var option in model.IncorrectAnswers.Append(model.CorrectAnswer).OrderBy(_ => Guid.NewGuid()))
-            {
-                Options.Add(option);
+                model.Difficulty = value;
+                RaisePropertyChanged();
             }
-
-            RaisePropertyChanged(nameof(Options));
         }
+    }
+
+    public QuestionViewModel(Question model)
+    {
+        this.model = model;
+        IncorrectAnswers = new ObservableCollection<string>(model.IncorrectAnswers);
+
+        Options = new ObservableCollection<AnswerOptionViewModel>();
+        UpdateOptions();
+
+        IncorrectAnswers.CollectionChanged += (sender, args) =>
+        {
+            model.IncorrectAnswers = IncorrectAnswers.ToArray();
+            RaisePropertyChanged(nameof(IncorrectAnswers));
+            UpdateOptions();
+        };
+    }
+
+    private void UpdateOptions()
+    {
+        Options.Clear();
+
+        // Lägg till felaktiga svar som AnswerOptionViewModel
+        foreach (var incorrectAnswer in model.IncorrectAnswers)
+        {
+            Options.Add(new AnswerOptionViewModel(incorrectAnswer, false));
+        }
+
+        // Lägg till det korrekta svaret som AnswerOptionViewModel
+        Options.Add(new AnswerOptionViewModel(model.CorrectAnswer, true));
+
+        // Blanda alternativen
+        var shuffledOptions = Options.OrderBy(_ => Guid.NewGuid()).ToList();
+        Options.Clear();
+        foreach (var option in shuffledOptions)
+        {
+            Options.Add(option);
+        }
+
+        RaisePropertyChanged(nameof(Options));
     }
 }

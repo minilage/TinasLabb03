@@ -18,10 +18,23 @@ namespace TinasLabb03.ViewModel
         private double _buttonFontSize = 18;  // Standardstorlek för knapptext
         private double _buttonHeight = 60;    // Standardhöjd för knappar
 
+        private int _score;
+
+        public int Score
+        {
+            get => _score;
+            set
+            {
+                _score = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public string CurrentQuestion => mainWindowViewModel.ActivePack?.Questions[_currentQuestionIndex].Query ?? "No question available";
         public string QuestionInfo => $"Question {_currentQuestionIndex + 1} of {mainWindowViewModel.ActivePack?.Questions.Count ?? 0}";
         public string TimeLeft => $"{_timeLeft} seconds";
-        public ObservableCollection<string> Options { get; set; }
+        public ObservableCollection<AnswerOptionViewModel> Options { get; set; }
+
 
         public bool IsTimeOut
         {
@@ -29,6 +42,18 @@ namespace TinasLabb03.ViewModel
             private set
             {
                 _isTimeOut = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        private bool _isQuestionActive;
+
+        public bool IsQuestionActive
+        {
+            get => _isQuestionActive;
+            set
+            {
+                _isQuestionActive = value;
                 RaisePropertyChanged();
             }
         }
@@ -87,7 +112,7 @@ namespace TinasLabb03.ViewModel
             AnswerCommand = new DelegateCommand(HandleAnswer);
             ContinueCommand = new DelegateCommand(ContinueToNextQuestion);
             QuitCommand = new DelegateCommand(QuitToMainMenu);
-            Options = new ObservableCollection<string>() { "", "", "", "" };
+            Options = new ObservableCollection<AnswerOptionViewModel>();
 
             if (mainWindowViewModel.ActivePack != null)
             {
@@ -121,61 +146,83 @@ namespace TinasLabb03.ViewModel
 
         private void LoadQuestion()
         {
-            // Kontrollera om det finns ett aktivt paket och om indexet är giltigt
             if (mainWindowViewModel.ActivePack == null || _currentQuestionIndex >= mainWindowViewModel.ActivePack.Questions.Count)
             {
-                Options = new ObservableCollection<string> { "N/A", "N/A", "N/A", "N/A" };
+                Options = new ObservableCollection<AnswerOptionViewModel>
+        {
+            new AnswerOptionViewModel("N/A", false),
+            new AnswerOptionViewModel("N/A", false),
+            new AnswerOptionViewModel("N/A", false),
+            new AnswerOptionViewModel("N/A", false)
+        };
                 RaisePropertyChanged(nameof(Options));
                 return;
             }
 
-            // Hämta den aktuella frågan
+            IsQuestionActive = true; // Aktivera frågan
+
             var currentQuestion = mainWindowViewModel.ActivePack.Questions[_currentQuestionIndex];
+            Options = new ObservableCollection<AnswerOptionViewModel>(
+                currentQuestion.IncorrectAnswers
+                    .Select(answer => new AnswerOptionViewModel(answer, false))
+                    .Append(new AnswerOptionViewModel(currentQuestion.CorrectAnswer, true))
+                    .OrderBy(_ => Guid.NewGuid()) // Blanda alternativen
+            );
 
-            // Validera att det finns exakt tre felaktiga svar
-            if (currentQuestion.Options.Count != 4)
-            {
-                throw new InvalidOperationException("Each question must have exactly four options.");
-            }
-
-            // Skapa en temporär lista för svarsalternativen
-            var tempOption = new ObservableCollection<string>();
-
-            // Ladda alternativen
-            foreach (var option in currentQuestion.Options)
-            {
-                tempOption.Add(option);
-            }
-
-            // Tilldela tempOption till den bindningsbara Options-egenskapen
-            Options = tempOption;
-
-            // Notifiera om att CurrentQuestion, QuestionInfo och Options har ändrats
+            RaisePropertyChanged(nameof(Options));
             RaisePropertyChanged(nameof(CurrentQuestion));
             RaisePropertyChanged(nameof(QuestionInfo));
-            RaisePropertyChanged(nameof(Options));
         }
 
-
-        private void HandleAnswer(object? obj)
+        private void HandleAnswer(object? parameter)
         {
-            if (obj is int selectedIndex && mainWindowViewModel.ActivePack != null)
-            {
-                var correctAnswer = mainWindowViewModel.ActivePack.Questions[_currentQuestionIndex].CorrectAnswer;
+            if (parameter is not AnswerOptionViewModel selectedOption || mainWindowViewModel.ActivePack == null)
+                return;
 
-                if (Options[selectedIndex] == correctAnswer)
+            // Markera rätt och fel alternativ
+            foreach (var option in Options)
+            {
+                // Om användaren tryckt på alternativet
+                if (option == selectedOption)
                 {
-                    MessageBox.Show("Correct!");
+                    option.IsSelected = true; // Markera som valt
+                    option.IsCorrect = option.IsCorrect; // Behåll korrekthetsstatus
                 }
                 else
                 {
-                    MessageBox.Show("Incorrect!");
+                    // Markera som ej valt och endast rätt alternativ grönt
+                    option.IsSelected = option.IsCorrect;
                 }
+            }
 
-                timer.Stop();
-                IsTimeOut = true;
+            // Uppdatera poäng om svaret är rätt
+            if (selectedOption.IsCorrect)
+            {
+                Score++;
+            }
+
+            // Uppdatera UI-bindningar
+            RaisePropertyChanged(nameof(Score));
+            RaisePropertyChanged(nameof(Options));
+
+            // Kontrollera om detta är sista frågan
+            if (_currentQuestionIndex + 1 >= mainWindowViewModel.ActivePack.Questions.Count)
+            {
+                // Visa popup om alla frågor är besvarade
+                ShowResultPopup();
+            }
+            else
+            {
+                // Vänta 2 sekunder innan nästa fråga
+                Task.Delay(2000).ContinueWith(_ =>
+                {
+                    _currentQuestionIndex++;
+                    LoadQuestion();
+                }, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
+
+
 
         private void ContinueToNextQuestion(object? obj)
         {
@@ -205,7 +252,6 @@ namespace TinasLabb03.ViewModel
         {
             if (isFullscreen)
             {
-                // Öka storlek i fullskärmsläge
                 ScaleFactor = 1.5;
                 ButtonFontSize = 24;
                 ButtonHeight = 90;
@@ -213,18 +259,23 @@ namespace TinasLabb03.ViewModel
             }
             else
             {
-                // Återställ storlek till normalläge
                 ScaleFactor = 1.0;
                 ButtonFontSize = 18;
                 ButtonHeight = 60;
                 QuestionFontSize = 28;
             }
 
-            // Anropa RaisePropertyChanged för att säkerställa att UI uppdateras
             RaisePropertyChanged(nameof(ScaleFactor));
             RaisePropertyChanged(nameof(ButtonFontSize));
             RaisePropertyChanged(nameof(ButtonHeight));
             RaisePropertyChanged(nameof(QuestionFontSize));
+        }
+
+        private void ShowResultPopup()
+        {
+            MessageBox.Show($"You got {Score} out of {mainWindowViewModel.ActivePack?.Questions.Count} correct!",
+                "Quiz Results", MessageBoxButton.OK);
+            QuitToMainMenu(null);
         }
     }
 }
