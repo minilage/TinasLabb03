@@ -10,7 +10,7 @@
         <ScaleTransform ScaleX="{Binding ScaleFactor}" ScaleY="{Binding ScaleFactor}" />
     </UserControl.LayoutTransform>
 
-    <Grid Background="White">
+    <Grid Background="#FF97AD96">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -52,7 +52,7 @@
                     CommandParameter="0" 
                     FontSize="{Binding ButtonFontSize}" 
                     Height="{Binding ButtonHeight}" 
-                    Background="#FFBFC1C7" 
+                    Background="LightGray" 
                     Foreground="Black" 
                     Margin="10" 
                     Padding="10" 
@@ -62,7 +62,7 @@
                     CommandParameter="1" 
                     FontSize="{Binding ButtonFontSize}" 
                     Height="{Binding ButtonHeight}" 
-                    Background="#FFBFC1C7" 
+                    Background="LightGray" 
                     Foreground="Black" 
                     Margin="10" 
                     Padding="10" 
@@ -72,7 +72,7 @@
                     CommandParameter="2" 
                     FontSize="{Binding ButtonFontSize}" 
                     Height="{Binding ButtonHeight}" 
-                    Background="#FFBFC1C7" 
+                    Background="LightGray" 
                     Foreground="Black" 
                     Margin="10" 
                     Padding="10" 
@@ -82,7 +82,7 @@
                     CommandParameter="3" 
                     FontSize="{Binding ButtonFontSize}" 
                     Height="{Binding ButtonHeight}" 
-                    Background="#FFBFC1C7" 
+                    Background="LightGray" 
                     Foreground="Black" 
                     Margin="10" 
                     Padding="10" 

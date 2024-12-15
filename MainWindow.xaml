@@ -3,7 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:view="clr-namespace:TinasLabb03.View"
         xmlns:viewmodel="clr-namespace:TinasLabb03.ViewModel"
-        Title="Question Configurator" Height="450" Width="800"
+        xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
+        Title="Quiz Configurator" Height="450" Width="800"
+        Icon="{fa:IconSource lightbulb, Foreground=#FF319031}"
         WindowStartupLocation="CenterScreen">
 
         <!--="/Assets/letter-q.ico"-->              

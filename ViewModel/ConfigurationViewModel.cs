@@ -7,10 +7,11 @@ namespace TinasLabb03.ViewModel
     internal class ConfigurationViewModel : ViewModelBase
     {
         private readonly MainWindowViewModel mainWindowViewModel;
-        private Question? _selectedQuestion;
+        private QuestionViewModel? _selectedQuestion;
         private bool _isRightPanelVisible;
 
         public static IEnumerable<Difficulty> Difficulties => Enum.GetValues(typeof(Difficulty)).Cast<Difficulty>();
+
 
         public ConfigurationViewModel(MainWindowViewModel mainWindowViewModel)
         {
@@ -24,7 +25,7 @@ namespace TinasLabb03.ViewModel
 
         public QuestionPackViewModel? ActivePack => mainWindowViewModel.ActivePack;
 
-        public Question? SelectedQuestion
+        public QuestionViewModel? SelectedQuestion
         {
             get => _selectedQuestion;
             set
@@ -55,8 +56,9 @@ namespace TinasLabb03.ViewModel
             if (ActivePack != null)
             {
                 var newQuestion = new Question("New Question", "", new[] { "", "", "" }, Difficulty.Medium);
-                ActivePack.Questions.Add(newQuestion);
-                SelectedQuestion = newQuestion;
+                var newQuestionViewModel = new QuestionViewModel(newQuestion);
+                ActivePack.Questions.Add(newQuestionViewModel);
+                SelectedQuestion = newQuestionViewModel;
             }
         }
 

@@ -5,6 +5,7 @@
              xmlns:view="clr-namespace:TinasLabb03.View"
              xmlns:viewmodel="clr-namespace:TinasLabb03.ViewModel"
              StartupUri="MainWindow.xaml">
+    
     <Application.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 

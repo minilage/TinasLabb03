@@ -125,7 +125,8 @@ namespace TinasLabb03.ViewModel
             if (ActivePack != null)
             {
                 var newQuestion = new Question("New Question", "", new[] { "", "", "" }, Difficulty.Medium);
-                ActivePack.Questions.Add(newQuestion);
+                var newQuestionViewModel = new QuestionViewModel(newQuestion);
+                ActivePack.Questions.Add(newQuestionViewModel);
             }
         }
 
@@ -215,7 +216,18 @@ namespace TinasLabb03.ViewModel
         {
             try
             {
-                var packs = Packs.Select(p => new QuestionPack(p.Name, p.Difficulty, p.TimeLimitInSeconds, new ObservableCollection<Question>(p.Questions))).ToArray();
+                var packs = Packs.Select(p => new QuestionPack(
+                    p.Name,
+                    p.Difficulty,
+                    p.TimeLimitInSeconds,
+                    new ObservableCollection<Question>(p.Questions.Select(q => new Question(
+                        q.Query,
+                        q.CorrectAnswer,
+                        q.Options.Where(option => option != q.CorrectAnswer).ToArray(),
+                        q.Difficulty
+                    )))
+                )).ToArray();
+
                 string json = JsonSerializer.Serialize(packs, JsonOptions);
                 await File.WriteAllTextAsync(FilePath, json);
             }

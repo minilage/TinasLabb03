@@ -121,52 +121,41 @@ namespace TinasLabb03.ViewModel
 
         private void LoadQuestion()
         {
-            ObservableCollection<string> tempOption = new ObservableCollection<string>();
-
-            if (mainWindowViewModel.ActivePack == null || mainWindowViewModel.ActivePack.Questions.Count <= _currentQuestionIndex)
+            // Kontrollera om det finns ett aktivt paket och om indexet är giltigt
+            if (mainWindowViewModel.ActivePack == null || _currentQuestionIndex >= mainWindowViewModel.ActivePack.Questions.Count)
             {
-                for (int i = 0; i < 4; i++)
-                {
-                    tempOption.Add("N/A");
-                }
-                Options = tempOption;
+                Options = new ObservableCollection<string> { "N/A", "N/A", "N/A", "N/A" };
                 RaisePropertyChanged(nameof(Options));
                 return;
             }
 
+            // Hämta den aktuella frågan
             var currentQuestion = mainWindowViewModel.ActivePack.Questions[_currentQuestionIndex];
 
-            if (currentQuestion.IncorrectAnswers != null && currentQuestion.IncorrectAnswers.Count() != 3)
-
+            // Validera att det finns exakt tre felaktiga svar
+            if (currentQuestion.Options.Count != 4)
             {
-                throw new InvalidOperationException("Each question must have exactly three incorrect answers.");
+                throw new InvalidOperationException("Each question must have exactly four options.");
             }
 
-            var answers = currentQuestion.IncorrectAnswers
-                                         .Append(currentQuestion.CorrectAnswer)
-                                         .OrderBy(_ => Guid.NewGuid())
-                                         .ToList();
+            // Skapa en temporär lista för svarsalternativen
+            var tempOption = new ObservableCollection<string>();
 
-            Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
+            // Ladda alternativen
+            foreach (var option in currentQuestion.Options)
             {
-                //Options.Clear();
-                foreach (var answer in answers)
-                {
-                    tempOption.Add(answer);
-                }
+                tempOption.Add(option);
+            }
 
-                // Se till att det alltid finns exakt fyra alternativ
-                while (tempOption.Count < 4)
-                {
-                    tempOption.Add("N/A");
-                }
+            // Tilldela tempOption till den bindningsbara Options-egenskapen
+            Options = tempOption;
 
-                Options = tempOption;
-                RaisePropertyChanged(nameof(CurrentQuestion));
-                RaisePropertyChanged(nameof(QuestionInfo));
-                RaisePropertyChanged(nameof(Options));
-            }));
+            // Notifiera om att CurrentQuestion, QuestionInfo och Options har ändrats
+            RaisePropertyChanged(nameof(CurrentQuestion));
+            RaisePropertyChanged(nameof(QuestionInfo));
+            RaisePropertyChanged(nameof(Options));
         }
+
 
         private void HandleAnswer(object? obj)
         {
