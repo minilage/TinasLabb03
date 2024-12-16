@@ -184,25 +184,36 @@ namespace TinasLabb03.ViewModel
             {
                 if (option == selectedOption)
                 {
-                    // Markera det valda alternativet
-                    if (option.IsCorrect)
-                    {
-                        option.IsSelected = true; // Rätt svar markeras grönt
-                        Score++; // Öka poängen bara om det är rätt svar
-                    }
-                    else
-                    {
-                        option.IsSelected = false; // Felaktigt val markeras inte grönt
-                    }
+                    // Always set IsWrong for the incorrect selection
+                    option.IsWrong = !option.IsCorrect;
+
+                    // Set IsSelected based on correctness
+                    option.IsSelected = option.IsCorrect;
                 }
                 else
                 {
-                    // Markera endast rätt alternativ som grönt
+                    // Reset other options
+                    option.IsWrong = false;
                     option.IsSelected = option.IsCorrect;
                 }
             }
 
-            RaisePropertyChanged(nameof(Options)); // Uppdatera UI-bindningarna
+            // If the selected answer is incorrect, highlight the correct answer
+            if (!selectedOption.IsCorrect)
+            {
+                // Find and highlight the correct answer
+                var correctOption = Options.FirstOrDefault(o => o.IsCorrect);
+                if (correctOption != null)
+                {
+                    correctOption.IsSelected = true;
+                }
+            }
+            else
+            {
+                Score++; // Increase score only for correct answers
+            }
+
+            RaisePropertyChanged(nameof(Options)); // Update UI bindings
 
             // Kontrollera om detta var den sista frågan
             if (_currentQuestionIndex + 1 >= mainWindowViewModel.ActivePack.Questions.Count)

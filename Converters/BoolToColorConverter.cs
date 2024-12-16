@@ -4,19 +4,33 @@ using System.Windows.Media;
 
 namespace TinasLabb03.Converters
 {
-    public class BoolToColorConverter : IValueConverter
+    public class BoolToColorConverter : IMultiValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool isSelected)
+            // Handle single binding scenario (original behavior)
+            if (values.Length == 1 && values[0] is bool singleSelected)
             {
-                // Grönt för rätt svar
-                return isSelected ? Brushes.Green : Brushes.LightGray;
+                return singleSelected ? Brushes.Green : Brushes.LightGray;
             }
+
+            // Multi-binding scenario
+            if (values.Length >= 3)
+            {
+                bool isMultiSelected = values[0] is bool && (bool)values[0];
+                bool isMultiCorrect = values[1] is bool && (bool)values[1];
+                bool isMultiWrong = values[2] is bool && (bool)values[2];
+
+                if (isMultiSelected && isMultiCorrect)
+                    return Brushes.Green;
+                if (isMultiWrong)
+                    return Brushes.Red;
+            }
+
             return Brushes.LightGray;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

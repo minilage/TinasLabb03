@@ -13,6 +13,23 @@
 
     <UserControl.Resources>
         <local:BoolToColorConverter x:Key="BoolToColorConverter" />
+        <Style TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="Green"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="Black" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="Red"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
 
     <Grid Background="#FF97AD96">
@@ -29,7 +46,7 @@
                    FontWeight="Bold" 
                    Foreground="Black" 
                    HorizontalAlignment="Center"
-                   Margin="10"/>
+                   Margin="10" />
 
         <!-- Frågetext -->
         <StackPanel Grid.Row="1" 
@@ -63,11 +80,18 @@
                             CommandParameter="{Binding .}" 
                             FontSize="{Binding DataContext.ButtonFontSize, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
                             Height="{Binding DataContext.ButtonHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}" 
-                            Background="{Binding IsSelected, Converter={StaticResource BoolToColorConverter}}" 
                             Foreground="Black" 
                             Margin="10" 
                             Padding="10" 
-                            BorderThickness="0" />
+                            BorderThickness="0">
+                        <Button.Background>
+                            <MultiBinding Converter="{StaticResource BoolToColorConverter}" FallbackValue="LightGray">
+                                <Binding Path="IsSelected" />
+                                <Binding Path="IsCorrect" />
+                                <Binding Path="IsWrong" />
+                            </MultiBinding>
+                        </Button.Background>
+                    </Button>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
@@ -85,7 +109,7 @@
                                FontWeight="Bold" 
                                Foreground="White" 
                                TextAlignment="Center" 
-                               Margin="10"/>
+                               Margin="10" />
                     <StackPanel Orientation="Horizontal" 
                                 HorizontalAlignment="Center" 
                                 Margin="10">
@@ -97,7 +121,7 @@
                                 Background="#4CAF50" 
                                 Foreground="White" 
                                 Padding="5" 
-                                BorderThickness="0"/>
+                                BorderThickness="0" />
                         <Button Content="Quit" 
                                 Command="{Binding QuitCommand}" 
                                 FontSize="16" 
@@ -106,7 +130,7 @@
                                 Background="#F44336" 
                                 Foreground="White" 
                                 Padding="5" 
-                                BorderThickness="0"/>
+                                BorderThickness="0" />
                     </StackPanel>
                 </StackPanel>
             </Border>
