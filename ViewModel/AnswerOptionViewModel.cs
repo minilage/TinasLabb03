@@ -5,6 +5,7 @@
         private bool _isSelected;
         private bool _isCorrect;
         private bool _isWrong;
+        private bool _canGuess;
 
         public string Text { get; }
 
@@ -47,17 +48,25 @@
             }
         }
 
+        public bool CanGuess
+        {
+            get => _canGuess;
+            set
+            {
+                if (_canGuess != value)
+                {
+                    _canGuess = value;
+                    RaisePropertyChanged(nameof(CanGuess));
+                }
+            }
+        }
+
+
         public AnswerOptionViewModel(string text, bool isCorrect)
         {
             Text = text;
             IsCorrect = isCorrect;
-        }
-
-        // Method to reset the state of the answer option
-        public void Reset()
-        {
-            IsSelected = false;
-            IsWrong = false;
+            CanGuess = true;
         }
     }
 }

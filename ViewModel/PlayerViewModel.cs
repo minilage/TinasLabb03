@@ -182,6 +182,7 @@ namespace TinasLabb03.ViewModel
 
             foreach (var option in Options)
             {
+                option.CanGuess = false;
                 if (option == selectedOption)
                 {
                     // Always set IsWrong for the incorrect selection
@@ -234,9 +235,6 @@ namespace TinasLabb03.ViewModel
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
-
-
-
 
         private void ContinueToNextQuestion(object? obj)
         {
