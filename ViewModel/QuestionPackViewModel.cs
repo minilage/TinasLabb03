@@ -3,9 +3,11 @@ using TinasLabb03.Model;
 
 namespace TinasLabb03.ViewModel
 {
-    public class QuestionPackViewModel : ViewModelBase
+    internal class QuestionPackViewModel : ViewModelBase
     {
         private readonly QuestionPack model;
+
+        public ObservableCollection<QuestionViewModel> Questions { get; }
 
         public QuestionPackViewModel(QuestionPack model)
         {
@@ -44,7 +46,5 @@ namespace TinasLabb03.ViewModel
                 RaisePropertyChanged();
             }
         }
-
-        public ObservableCollection<QuestionViewModel> Questions { get; }
     }
 }

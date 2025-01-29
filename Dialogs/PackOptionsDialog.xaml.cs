@@ -9,7 +9,7 @@ namespace TinasLabb03.Dialogs
     /// </summary>
     public partial class PackOptionsDialog : Window
     {
-        public PackOptionsDialog(QuestionPackViewModel activePack)
+        internal PackOptionsDialog(QuestionPackViewModel activePack)
         {
             InitializeComponent();
 

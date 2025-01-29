@@ -43,6 +43,7 @@ namespace TinasLabb03.ViewModel
         }
 
         public ConfigurationViewModel ConfigurationViewModel { get; }
+
         public DelegateCommand CreatePackCommand { get; }
         public DelegateCommand DeletePackCommand { get; }
         public DelegateCommand AddQuestionCommand { get; }

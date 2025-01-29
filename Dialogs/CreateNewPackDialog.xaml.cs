@@ -6,7 +6,7 @@ namespace TinasLabb03.Dialogs
 {
     public partial class CreateNewPackDialog : Window
     {
-        public CreateNewPackDialog(QuestionPackViewModel packViewModel, IEnumerable<Difficulty> difficulties)
+        internal CreateNewPackDialog(QuestionPackViewModel packViewModel, IEnumerable<Difficulty> difficulties)
         {
             InitializeComponent();
 
