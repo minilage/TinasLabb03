@@ -5,20 +5,31 @@ using System.Windows;
 using TinasLabb03.Command;
 using TinasLabb03.Dialogs;
 using TinasLabb03.Model;
+using Application = System.Windows.Application;
+using MessageBox = System.Windows.MessageBox;
 
 namespace TinasLabb03.ViewModel
 {
     internal class MainWindowViewModel : ViewModelBase
     {
+        // ===========================
+        //  Fält & Konstanter
+        // ===========================
+
         private QuestionPackViewModel? _activePack;
         private object? _currentView;
+        private bool _configMode = true;
+        private bool _playMode = false;
 
         private static readonly string AppFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TinasLabb03");
         private static readonly string FilePath = Path.Combine(AppFolder, "QuestionPacks.json");
         private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
-        public ObservableCollection<QuestionPackViewModel> Packs { get; set; } = new();
+        // ===========================
+        //  Egenskaper
+        // ===========================
 
+        public ObservableCollection<QuestionPackViewModel> Packs { get; set; } = new();
         public static IEnumerable<Difficulty> Difficulties => Enum.GetValues(typeof(Difficulty)).Cast<Difficulty>();
 
         public QuestionPackViewModel? ActivePack
@@ -27,7 +38,7 @@ namespace TinasLabb03.ViewModel
             set
             {
                 _activePack = value;
-                ConfigurationViewModel.RaisePropertyChanged("ActivePack");
+                ConfigurationViewModel.RaisePropertyChanged(nameof(ActivePack));
                 RaisePropertyChanged();
             }
         }
@@ -42,7 +53,31 @@ namespace TinasLabb03.ViewModel
             }
         }
 
+        public bool PlayMode
+        {
+            get => _playMode;
+            private set
+            {
+                _playMode = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public bool ConfigMode
+        {
+            get => _configMode;
+            private set
+            {
+                _configMode = value;
+                RaisePropertyChanged();
+            }
+        }
+
         public ConfigurationViewModel ConfigurationViewModel { get; }
+
+        // ===========================
+        //  Kommandon
+        // ===========================
 
         public DelegateCommand CreatePackCommand { get; }
         public DelegateCommand DeletePackCommand { get; }
@@ -55,11 +90,16 @@ namespace TinasLabb03.ViewModel
         public DelegateCommand GoToConfigurationCommand { get; }
         public DelegateCommand GoToPlayerCommand { get; }
 
+        // ===========================
+        //  Konstruktor
+        // ===========================
+
         public MainWindowViewModel()
         {
             ConfigurationViewModel = new ConfigurationViewModel(this);
             CurrentView = ConfigurationViewModel;
 
+            // Initiera kommandon
             CreatePackCommand = new DelegateCommand(CreatePack);
             DeletePackCommand = new DelegateCommand(DeleteActivePack, CanDeletePack);
             AddQuestionCommand = new DelegateCommand(AddQuestion, CanModifyPack);
@@ -71,20 +111,23 @@ namespace TinasLabb03.ViewModel
 
             GoToConfigurationCommand = new DelegateCommand(_ =>
             {
-                if (CurrentView is PlayerViewModel playerViewModel)
+                if (PlayMode)
                 {
-                    playerViewModel.AdjustScaleForFullscreen(false);
+                    PlayMode = false;
+                    ConfigMode = true;
+                    CurrentView = ConfigurationViewModel;
                 }
-                CurrentView = ConfigurationViewModel;
             });
 
             GoToPlayerCommand = new DelegateCommand(_ =>
             {
-                if (ActivePack != null)
+                if (ActivePack != null && !PlayMode)
                 {
                     var playerViewModel = new PlayerViewModel(this);
                     playerViewModel.StartGame(ActivePack);
                     CurrentView = playerViewModel;
+                    ConfigMode = false;
+                    PlayMode = true;
                 }
                 else
                 {
@@ -95,14 +138,15 @@ namespace TinasLabb03.ViewModel
             Task.Run(LoadDataAsync);
         }
 
+        // ===========================
+        //  Metoder: Hantering av Question Packs
+        // ===========================
+
         private void CreatePack(object? obj)
         {
-            var newPackViewModel = new QuestionPackViewModel(
-                new QuestionPack("New Pack", Difficulty.Medium, 30)
-            );
+            var newPackViewModel = new QuestionPackViewModel(new QuestionPack("New Pack", Difficulty.Medium, 30));
 
             var dialog = new CreateNewPackDialog(newPackViewModel, Difficulties);
-
             if (dialog.ShowDialog() == true)
             {
                 Packs.Add(newPackViewModel);
@@ -135,11 +179,7 @@ namespace TinasLabb03.ViewModel
         {
             if (ActivePack != null && ActivePack.Questions.Any())
             {
-                var questionToRemove = ActivePack.Questions.LastOrDefault();
-                if (questionToRemove != null)
-                {
-                    ActivePack.Questions.Remove(questionToRemove);
-                }
+                ActivePack.Questions.Remove(ActivePack.Questions.Last());
             }
         }
 
@@ -150,14 +190,16 @@ namespace TinasLabb03.ViewModel
             if (ActivePack != null)
             {
                 var dialog = new PackOptionsDialog(ActivePack);
-                bool? result = dialog.ShowDialog();
-
-                if (result == true)
+                if (dialog.ShowDialog() == true)
                 {
                     RaisePropertyChanged(nameof(ActivePack));
                 }
             }
         }
+
+        // ===========================
+        //  Metoder: Applikationshantering
+        // ===========================
 
         private void ExitApplication(object? obj) => Application.Current.Shutdown();
 
@@ -165,7 +207,7 @@ namespace TinasLabb03.ViewModel
         {
             if (Application.Current.MainWindow is { } mainWindow)
             {
-                var isFullscreen = mainWindow.WindowState == WindowState.Normal;
+                bool isFullscreen = mainWindow.WindowState == WindowState.Normal;
                 mainWindow.WindowState = isFullscreen ? WindowState.Maximized : WindowState.Normal;
                 mainWindow.WindowStyle = isFullscreen ? WindowStyle.None : WindowStyle.SingleBorderWindow;
 
@@ -184,17 +226,17 @@ namespace TinasLabb03.ViewModel
             }
         }
 
+        // ===========================
+        //  Metoder: Ladda & Spara Data
+        // ===========================
+
         public async Task LoadDataAsync()
         {
             try
             {
-                if (!Directory.Exists(AppFolder))
-                    Directory.CreateDirectory(AppFolder);
-
+                Directory.CreateDirectory(AppFolder);
                 if (!File.Exists(FilePath))
-                {
-                    File.WriteAllText(FilePath, "[]");
-                }
+                    await File.WriteAllTextAsync(FilePath, "[]");
 
                 string json = await File.ReadAllTextAsync(FilePath);
                 var packs = JsonSerializer.Deserialize<QuestionPack[]>(json, JsonOptions) ?? Array.Empty<QuestionPack>();
@@ -204,7 +246,6 @@ namespace TinasLabb03.ViewModel
                 {
                     Packs.Add(new QuestionPackViewModel(pack));
                 }
-
                 ActivePack = Packs.FirstOrDefault();
             }
             catch (Exception ex)
@@ -217,20 +258,7 @@ namespace TinasLabb03.ViewModel
         {
             try
             {
-                var packs = Packs.Select(p => new QuestionPack(
-                    p.Name,
-                    p.Difficulty,
-                    p.TimeLimitInSeconds,
-                new ObservableCollection<Question>(p.Questions.Select(q => new Question(
-                    q.Query,
-                    q.CorrectAnswer,
-                    q.Options.Where(option => option.Text != q.CorrectAnswer).Select(option => option.Text).ToArray(),
-                    q.Difficulty
-                )))
-
-                )).ToArray();
-
-                string json = JsonSerializer.Serialize(packs, JsonOptions);
+                string json = JsonSerializer.Serialize(Packs.Select(p => p.ToModel()), JsonOptions);
                 await File.WriteAllTextAsync(FilePath, json);
             }
             catch (Exception ex)

@@ -8,11 +8,9 @@
     Title="Quiz Configurator"
     Width="800"
     Height="450"
-    Icon="{fa:IconSource lightbulb,
-                         Foreground=#FF319031}"
+    Icon="{fa:IconSource lightbulb,Foreground=#FF319031}"
     WindowStartupLocation="CenterScreen">
 
-    <!--  ="/Assets/letter-q.ico"  -->
     <Window.DataContext>
         <viewmodel:MainWindowViewModel />
     </Window.DataContext>
@@ -26,9 +24,13 @@
         <!--  Menyn  -->
         <view:MenuView Grid.Row="0" />
 
-        
-        <view:ConfigurationView Grid.Row="1" />
-        <view:PlayerView Grid.Row="1" Visibility="Hidden"/>
+        <!--  Övriga vyn  -->
+        <view:ConfigurationView Grid.Row="1" Visibility="{Binding ConfigMode, Converter={StaticResource BoolToVisibilityConverter}}" />
+        <view:PlayerView Grid.Row="1" Visibility="{Binding PlayMode, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+
+        <!--<view:ConfigurationView Grid.Row="1" />
+        <view:PlayerView Grid.Row="1" Visibility="Hidden"/>-->
 
         <!--  Dynamiskt innehåll baserat på CurrentView  -->
         <!--<ContentControl Grid.Row="1" Content="{Binding CurrentView}" />-->

@@ -11,8 +11,6 @@ namespace TinasLabb03.ViewModel
 
         public QuestionPackViewModel? ActivePack => mainWindowViewModel?.ActivePack;
 
-
-
         private QuestionViewModel? _selectedQuestion;
 
         private bool _isRightPanelVisible;
@@ -29,7 +27,6 @@ namespace TinasLabb03.ViewModel
             RemoveQuestionCommand = new DelegateCommand(RemoveQuestion, CanModifyPack);
             PackOptionsCommand = new DelegateCommand(OpenPackOptions, CanModifyPack);
         }
-
 
         public QuestionViewModel? SelectedQuestion
         {

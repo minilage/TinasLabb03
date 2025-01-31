@@ -46,5 +46,10 @@ namespace TinasLabb03.ViewModel
                 RaisePropertyChanged();
             }
         }
+
+        internal object ToModel()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
