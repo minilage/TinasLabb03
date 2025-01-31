@@ -8,7 +8,7 @@ using TinasLabb03.Model;
 
 namespace TinasLabb03.ViewModel
 {
-    internal class MainWindowViewModel : ViewModelBase
+    class MainWindowViewModel : ViewModelBase
     {
         private QuestionPackViewModel? _activePack;
         private object? _currentView;
@@ -56,6 +56,11 @@ namespace TinasLabb03.ViewModel
 
         public MainWindowViewModel()
         {
+            using (var db = new SaveDBContext())
+            {
+                db.Database.EnsureCreated();
+            }
+
             ConfigurationViewModel = new ConfigurationViewModel(this);
             CurrentView = ConfigurationViewModel;
 
