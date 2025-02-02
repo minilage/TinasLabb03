@@ -3,7 +3,8 @@ using TinasLabb03.Model;
 
 namespace TinasLabb03.ViewModel
 {
-    internal class QuestionPackViewModel : ViewModelBase
+    // ViewModel för ett QuestionPack, exponerar egenskaper som bindas i UI:t.
+    public class QuestionPackViewModel : ViewModelBase
     {
         private readonly QuestionPack model;
 
@@ -12,11 +13,16 @@ namespace TinasLabb03.ViewModel
         public QuestionPackViewModel(QuestionPack model)
         {
             this.model = model;
+            // Konverterar modellens frågor till QuestionViewModels
             Questions = new ObservableCollection<QuestionViewModel>(
                 model.Questions.Select(q => new QuestionViewModel(q))
             );
         }
 
+        // Exponera modellens Id
+        public string? Id => model.Id;
+
+        // Exponerar packets namn med TwoWay-binding
         public string Name
         {
             get => model.Name;
@@ -46,10 +52,18 @@ namespace TinasLabb03.ViewModel
                 RaisePropertyChanged();
             }
         }
-
-        internal object ToModel()
+        // Exponerar kategori så att UI:t kan binda mot den
+        public string Category
         {
-            throw new NotImplementedException();
+            get => model.Category;
+            set
+            {
+                model.Category = value;
+                RaisePropertyChanged();
+            }
         }
+
+        // Lista med frågor i packen (ViewModels)
+        public ObservableCollection<QuestionViewModel> Questions { get; }
     }
 }

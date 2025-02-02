@@ -7,9 +7,12 @@ public class QuestionViewModel : ViewModelBase
     private readonly Question model;
     private string? _selectedAnswer;
 
+    // Lista med felaktiga svar (enkel stränglista)
     public ObservableCollection<string> IncorrectAnswers { get; }
+    // Lista med svarsalternativ som ViewModels
     public ObservableCollection<AnswerOptionViewModel> Options { get; }
 
+    // Vald svarsalternativ, notifierar UI:t vid ändring
     public string SelectedAnswer
     {
         get => _selectedAnswer!;
@@ -25,6 +28,7 @@ public class QuestionViewModel : ViewModelBase
         }
     }
 
+    // Booleska egenskaper för att indikera om det valda svaret är korrekt/inkorrekt
     public bool IsCorrect => SelectedAnswer == CorrectAnswer;
     public bool IsIncorrect => SelectedAnswer != null && SelectedAnswer != CorrectAnswer;
 
@@ -76,6 +80,7 @@ public class QuestionViewModel : ViewModelBase
         Options = new ObservableCollection<AnswerOptionViewModel>();
         UpdateOptions();
 
+        // När felaktiga svar ändras, uppdatera modellen och UI:t
         IncorrectAnswers.CollectionChanged += (sender, args) =>
         {
             model.IncorrectAnswers = IncorrectAnswers.ToArray();
@@ -84,20 +89,22 @@ public class QuestionViewModel : ViewModelBase
         };
     }
 
+    // Uppdaterar listan med svarsalternativ genom att lägga till de 
+    // felaktiga och korrekta svaren, och blandar dem slumpmässigt.
     private void UpdateOptions()
     {
         Options.Clear();
 
-        // Lägg till felaktiga svar som AnswerOptionViewModel
+        // Lägg till felaktiga svar
         foreach (var incorrectAnswer in model.IncorrectAnswers)
         {
             Options.Add(new AnswerOptionViewModel(incorrectAnswer, false));
         }
 
-        // Lägg till det korrekta svaret som AnswerOptionViewModel
+        // Lägg till det korrekta svaret
         Options.Add(new AnswerOptionViewModel(model.CorrectAnswer, true));
 
-        // Blanda alternativen
+        // // Blanda alternativen slumpmässigt
         var shuffledOptions = Options.OrderBy(_ => Guid.NewGuid()).ToList();
         Options.Clear();
         foreach (var option in shuffledOptions)

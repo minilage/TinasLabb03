@@ -3,22 +3,24 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace TinasLabb03.Model
 {
+    // Representerar en kategori för frågepaket.
+
     public class Category
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string? Id { get; set; } // MongoDB skapar unikt ID
+        public string? Id { get; set; }  // Id genereras automatiskt av MongoDB
 
-        public string Name { get; set; }
+        [BsonElement("name")]
+        public string Name { get; set; } = string.Empty; // Namnet på kategorin
 
+        // Parameterlös konstruktor (nödvändig för deserialisering)
+        public Category() { }
+
+        // Konstruktor med namnparameter
         public Category(string name)
         {
             Name = name;
-        }
-
-        public Category()
-        {
-            Name = string.Empty;
         }
     }
 }
