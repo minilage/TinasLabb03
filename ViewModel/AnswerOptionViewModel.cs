@@ -1,5 +1,9 @@
 ﻿namespace TinasLabb03.ViewModel
 {
+    /// ViewModel för ett svarsalternativ. Hanterar egenskaper som om 
+    /// alternativet är valt, korrekt, fel eller om man kan gissa.
+
+
     public class AnswerOptionViewModel : ViewModelBase
     {
         private bool _isSelected;
@@ -7,6 +11,7 @@
         private bool _isWrong;
         private bool _canGuess;
 
+        // Texten som visas på knappen för detta alternativ
         public string Text { get; }
 
         public bool IsSelected

@@ -7,6 +7,7 @@ namespace TinasLabb03
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+
     public partial class MainWindow : Window
     {
         private readonly MainWindowViewModel viewModel;
@@ -17,7 +18,7 @@ namespace TinasLabb03
             DataContext = viewModel = new MainWindowViewModel();
 
             Loaded += MainWindow_Loaded;
-            Closed += MainWindow_Closed;
+            //Closed += MainWindow_Closed;
         }
 
         private async void MainWindow_Loaded(object? sender, RoutedEventArgs? e)
@@ -33,18 +34,18 @@ namespace TinasLabb03
             }
         }
 
-        private async void MainWindow_Closed(object? sender, EventArgs? e)
-        {
-            if (viewModel != null)
-            {
-                // Sparar data när fönstret stängs
-                await viewModel.SaveDataAsync();
-            }
-            else
-            {
-                Console.WriteLine("ViewModel är null vid sparning av data.");
-            }
-        }
+        //private async void MainWindow_Closed(object? sender, EventArgs? e)
+        //{
+        //    if (viewModel != null)
+        //    {
+        //        // Sparar data när fönstret stängs
+        //        await viewModel.SaveDataAsync();
+        //    }
+        //    else
+        //    {
+        //        Console.WriteLine("ViewModel är null vid sparning av data.");
+        //    }
+        //}
 
         private void CloseCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
@@ -78,7 +79,7 @@ namespace TinasLabb03
                     playerViewModel.AdjustScaleForFullscreen(false);
                 }
 
-                Console.WriteLine("Lämnar helskärmsläge.");
+                System.Console.WriteLine("Lämnar helskärmsläge.");
             }
         }
     }

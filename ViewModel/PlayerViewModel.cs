@@ -185,24 +185,20 @@ namespace TinasLabb03.ViewModel
                 option.CanGuess = false;
                 if (option == selectedOption)
                 {
-                    // Always set IsWrong for the incorrect selection
+                    // Markera det valda alternativet som fel eller rätt
                     option.IsWrong = !option.IsCorrect;
-
-                    // Set IsSelected based on correctness
                     option.IsSelected = option.IsCorrect;
                 }
                 else
                 {
-                    // Reset other options
                     option.IsWrong = false;
                     option.IsSelected = option.IsCorrect;
                 }
             }
 
-            // If the selected answer is incorrect, highlight the correct answer
+            // Om det valda svaret är fel, markera det korrekta alternativet
             if (!selectedOption.IsCorrect)
             {
-                // Find and highlight the correct answer
                 var correctOption = Options.FirstOrDefault(o => o.IsCorrect);
                 if (correctOption != null)
                 {
@@ -211,7 +207,7 @@ namespace TinasLabb03.ViewModel
             }
             else
             {
-                Score++; // Increase score only for correct answers
+                Score++; // Öka poängen endast vid rätt svar
             }
 
             RaisePropertyChanged(nameof(Options)); // Update UI bindings
@@ -219,7 +215,7 @@ namespace TinasLabb03.ViewModel
             // Kontrollera om detta var den sista frågan
             if (_currentQuestionIndex + 1 >= mainWindowViewModel.ActivePack.Questions.Count)
             {
-                // Visa resultatpopup med en fördröjning
+                // Visa resultatpopup med en kort fördröjning
                 Task.Delay(1000).ContinueWith(_ =>
                 {
                     ShowResultPopup();
@@ -228,13 +224,20 @@ namespace TinasLabb03.ViewModel
             else
             {
                 // Vänta innan nästa fråga visas
-                Task.Delay(2000).ContinueWith(_ =>
+                Task.Delay(1000).ContinueWith(_ =>
                 {
                     _currentQuestionIndex++;
+                    // Återställ timern för nästa fråga med tiden per fråga
+                    _timeLeft = mainWindowViewModel.ActivePack?.TimeLimitInSeconds ?? 30;
                     LoadQuestion();
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }
+
+        /// <summary>
+        /// Om användaren klickar på "Continue" (t.ex. vid timeout) så ska nästa fråga laddas.
+        /// Här återställs tiden per fråga också.
+        /// </summary>
 
         private void ContinueToNextQuestion(object? obj)
         {
