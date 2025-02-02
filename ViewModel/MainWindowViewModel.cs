@@ -140,7 +140,6 @@ namespace TinasLabb03.ViewModel
             {
                 var categoriesToAdd = new List<Category>
         {
-            new Category("General"),
             new Category("Entertainment"),
             new Category("Science"),
             new Category("Geography"),
