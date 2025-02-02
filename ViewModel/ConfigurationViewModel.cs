@@ -6,8 +6,13 @@ namespace TinasLabb03.ViewModel
 {
     internal class ConfigurationViewModel : ViewModelBase
     {
-        private readonly MainWindowViewModel mainWindowViewModel;
+        private readonly MainWindowViewModel? mainWindowViewModel;
+
+
+        public QuestionPackViewModel? ActivePack => mainWindowViewModel?.ActivePack;
+
         private QuestionViewModel? _selectedQuestion;
+
         private bool _isRightPanelVisible;
 
         public static IEnumerable<Difficulty> Difficulties => Enum.GetValues(typeof(Difficulty)).Cast<Difficulty>();
@@ -22,8 +27,6 @@ namespace TinasLabb03.ViewModel
             RemoveQuestionCommand = new DelegateCommand(RemoveQuestion, CanModifyPack);
             PackOptionsCommand = new DelegateCommand(OpenPackOptions, CanModifyPack);
         }
-
-        public QuestionPackViewModel? ActivePack => mainWindowViewModel.ActivePack;
 
         public QuestionViewModel? SelectedQuestion
         {

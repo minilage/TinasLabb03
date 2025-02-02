@@ -8,6 +8,7 @@
     StartupUri="MainWindow.xaml">
 
     <Application.Resources>
+        
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 
         <!--  DataTemplates för dynamiska vyer  -->

@@ -12,6 +12,7 @@ namespace TinasLabb03.Dialogs
         // Konstruktor som sätter DataContext till det aktiva packet.
         // activePack - det QuestionPackViewModel som ska redigeras.
         public PackOptionsDialog(QuestionPackViewModel activePack)
+
         {
             InitializeComponent();
             DataContext = activePack;
