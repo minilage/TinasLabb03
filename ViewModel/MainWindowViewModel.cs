@@ -133,7 +133,7 @@ namespace TinasLabb03.ViewModel
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Error in InitializeCategoriesAsync:");
             }
