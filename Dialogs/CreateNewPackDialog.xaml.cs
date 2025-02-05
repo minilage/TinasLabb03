@@ -4,18 +4,14 @@ using TinasLabb03.ViewModel;
 
 namespace TinasLabb03.Dialogs
 {
-
-    // Interaction logic for CreateNewPackDialog.xaml.
     // Detta fönster används för att skapa ett nytt frågepaket.
 
     public partial class CreateNewPackDialog : Window
     {
-        // Konstruktor som sätter DataContext med Pack och en lista med Difficulties.
-
+        // Konstruktor som sätter DataContext med egenskaperna Pack, Difficulties och Categories.
         public CreateNewPackDialog(QuestionPackViewModel packViewModel, IEnumerable<Difficulty> difficulties, IEnumerable<Category> categories)
         {
             InitializeComponent();
-            // Sätter DataContext som ett anonymt objekt med egenskaperna Pack och Difficulties
             DataContext = new
             {
                 Pack = packViewModel,

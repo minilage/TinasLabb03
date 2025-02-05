@@ -5,6 +5,7 @@ using TinasLabb03.Command;
 
 namespace TinasLabb03.ViewModel
 {
+    // ViewModel för spelvyn. Hanterar visning av frågor, svar och timer per fråga.
     internal class PlayerViewModel : ViewModelBase
     {
         private readonly MainWindowViewModel mainWindowViewModel;
@@ -120,13 +121,15 @@ namespace TinasLabb03.ViewModel
             }
         }
 
+        // Startar spelet med det aktiva frågepaketet.
+        // Tiden sätts per fråga (exempelvis 30 sekunder per fråga).
         public void StartGame(QuestionPackViewModel activePack)
         {
             if (activePack == null) throw new ArgumentNullException(nameof(activePack));
 
             _currentQuestionIndex = 0;
-            _timeLeft = activePack.TimeLimitInSeconds;
-            Score = 0; // Återställ rätta svar
+            _timeLeft = activePack.TimeLimitInSeconds;// Tiden gäller per fråga
+            Score = 0; // Återställ rätta svar (poängen)
             IsTimeOut = false;
 
             LoadQuestion();
@@ -263,6 +266,7 @@ namespace TinasLabb03.ViewModel
             mainWindowViewModel.CurrentView = mainWindowViewModel.ConfigurationViewModel;
         }
 
+        //Justerar skalan för fullskärmsläge.
         public void AdjustScaleForFullscreen(bool isFullscreen)
         {
             if (isFullscreen)

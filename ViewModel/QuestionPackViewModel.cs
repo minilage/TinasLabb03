@@ -20,7 +20,7 @@ namespace TinasLabb03.ViewModel
         // Exponera modellens Id
         public string? Id => model.Id;
 
-        // Exponerar packets namn med TwoWay-binding
+        // Packets namn med TwoWay-binding
         public string Name
         {
             get => model.Name;
@@ -62,7 +62,10 @@ namespace TinasLabb03.ViewModel
             }
         }
 
-        // Lista med frågor i packen (ViewModels)
+        // Lista med frågor (ViewModels) i paketet.
         public ObservableCollection<QuestionViewModel> Questions { get; }
+
+        // Konverterar detta QuestionPackViewModel till Modelobjektet.
+        public QuestionPack ToModel() => model;
     }
 }

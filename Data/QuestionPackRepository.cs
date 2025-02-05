@@ -39,7 +39,6 @@ namespace TinasLabb03.Data
         }
 
         // Tar bort ett QuestionPack-dokument från databasen baserat på dess Id.
-        // Id för det QuestionPack som ska tas bort.
         public async Task DeleteAsync(string id)
         {
             await _collection.DeleteOneAsync(p => p.Id == id);

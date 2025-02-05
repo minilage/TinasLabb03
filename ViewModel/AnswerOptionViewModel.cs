@@ -3,7 +3,6 @@
     /// ViewModel för ett svarsalternativ. Hanterar egenskaper som om 
     /// alternativet är valt, korrekt, fel eller om man kan gissa.
 
-
     public class AnswerOptionViewModel : ViewModelBase
     {
         private bool _isSelected;

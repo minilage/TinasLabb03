@@ -5,7 +5,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
     xmlns:local="clr-namespace:TinasLabb03.View"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:viewmodel="clr-namespace:TinasLabb03.ViewModel" 
+    d:DataContext="{d:DesignInstance Type=viewmodel:ConfigurationViewModel}"
     d:Background="White"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -73,7 +75,7 @@
                     Width="18"
                     Height="18"
                     Margin="5,0,0,0"
-                    Command="{Binding RemoveQuestionCommand}"
+                    Command="{Binding ConfigurationViewModel.RemoveQuestionCommand}"
                     Content="{fa:Icon Minus}" />
             </StackPanel>
         </Grid>

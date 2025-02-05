@@ -19,10 +19,11 @@ namespace TinasLabb03.Data
         // Hämtar alla Category-dokument asynkront.
         public async Task<List<Category>> GetAllAsync()
         {
+            System.Diagnostics.Debug.WriteLine("GetAllSync(Category) anropad");
             return await _categories.Find(_ => true).ToListAsync();
         }
 
-        // Lägger till en ny kategori.
+        // Lägger till en ny kategori asynkront.
         public async Task AddAsync(Category category)
         {
             await _categories.InsertOneAsync(category);

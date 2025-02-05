@@ -1,20 +1,31 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using TinasLabb03.Model;
 using TinasLabb03.ViewModel;
 
 namespace TinasLabb03.Dialogs
 {
-    // Interaction logic for PackOptionsDialog.xaml.
     // Detta fönster används för att redigera inställningarna för ett befintligt frågepaket.
 
     public partial class PackOptionsDialog : Window
     {
-        // Konstruktor som sätter DataContext till det aktiva packet.
-        // activePack - det QuestionPackViewModel som ska redigeras.
-        public PackOptionsDialog(QuestionPackViewModel activePack)
+        /// <summary>
+        /// Konstruktor som sätter DataContext med Pack, Difficulties och Categories.
+        /// Här skickas även en lista med tillgängliga kategorier.
+        /// Om du inte vill redigera kategorier här, kan du skicka in null eller en tom lista.
+        /// </summary>
+
+        public PackOptionsDialog(QuestionPackViewModel activePack, IEnumerable<Difficulty> difficulties, IEnumerable<Category>? categories)
         {
             InitializeComponent();
-            DataContext = activePack;
+            // Om ingen lista med kategorier skickas in, använd en tom lista.
+            categories ??= new List<Category>();
+            DataContext = new
+            {
+                Pack = activePack,
+                Difficulties = difficulties,
+                Categories = categories
+            };
         }
 
         // Hanterar "Save"-knappen

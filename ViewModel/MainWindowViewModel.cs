@@ -4,31 +4,34 @@ using TinasLabb03.Command;
 using TinasLabb03.Data;
 using TinasLabb03.Dialogs;
 using TinasLabb03.Model;
+using Application = System.Windows.Application;
 
 namespace TinasLabb03.ViewModel
 {
-    class MainWindowViewModel : ViewModelBase
+    /// <summary>
+    /// Huvud-ViewModel för applikationen. Hanterar navigering och CRUD-operationer via MongoDB.
+    /// </summary>
+    public class MainWindowViewModel : ViewModelBase
     {
+        // Fält
         private QuestionPackViewModel? _activePack;
         private object? _currentView;
 
+        // Egenskaper
         public ObservableCollection<QuestionPackViewModel> Packs { get; set; } = new();
-
         public static IEnumerable<Difficulty> Difficulties => Enum.GetValues(typeof(Difficulty)).Cast<Difficulty>();
 
-        // Exponerar det aktiva frågepaketet
         public QuestionPackViewModel? ActivePack
         {
             get => _activePack;
             set
             {
                 _activePack = value;
-                ConfigurationViewModel.RaisePropertyChanged("ActivePack");
+                ConfigurationViewModel.RaisePropertyChanged(nameof(ActivePack));
                 RaisePropertyChanged();
             }
         }
 
-        // Exponerar aktuell vy (t.ex. konfiguration eller spel)
         public object? CurrentView
         {
             get => _currentView;
@@ -40,6 +43,8 @@ namespace TinasLabb03.ViewModel
         }
 
         public ConfigurationViewModel ConfigurationViewModel { get; }
+
+        // Kommandon
         public DelegateCommand CreatePackCommand { get; }
         public DelegateCommand DeletePackCommand { get; }
         public DelegateCommand AddQuestionCommand { get; }
@@ -50,24 +55,25 @@ namespace TinasLabb03.ViewModel
         public DelegateCommand SelectPackCommand { get; }
         public DelegateCommand GoToConfigurationCommand { get; }
         public DelegateCommand GoToPlayerCommand { get; }
+        public DelegateCommand ManageCategoriesCommand { get; }
 
         // MongoDB-repository
         private readonly MongoContext _mongoContext;
         private readonly QuestionPackRepository _questionPackRepo;
         private readonly CategoryRepository _categoryRepo;
 
+        // Konstruktor
         public MainWindowViewModel()
         {
-            // Använd den parameterlösa MongoContext-konstruktorn med hårdkodade värden
+            // Initiera MongoContext med hårdkodade värden
             _mongoContext = new MongoContext();
             _questionPackRepo = new QuestionPackRepository(_mongoContext);
             _categoryRepo = new CategoryRepository(_mongoContext);
 
-            // Initiera konfiguration och sätt aktuell vy
             ConfigurationViewModel = new ConfigurationViewModel(this);
             CurrentView = ConfigurationViewModel;
 
-            // Initiera kommandon för olika åtgärder
+            // Initiera kommandon
             CreatePackCommand = new DelegateCommand(async obj => await CreatePackAsync());
             DeletePackCommand = new DelegateCommand(async obj => await DeleteActivePackAsync(), CanDeletePack);
             AddQuestionCommand = new DelegateCommand(obj => AddQuestion(obj), CanModifyPack);
@@ -79,13 +85,8 @@ namespace TinasLabb03.ViewModel
 
             GoToConfigurationCommand = new DelegateCommand(_ =>
             {
-                if (CurrentView is PlayerViewModel playerViewModel)
-                {
-                    playerViewModel.AdjustScaleForFullscreen(false);
-                }
                 CurrentView = ConfigurationViewModel;
             });
-
             GoToPlayerCommand = new DelegateCommand(_ =>
             {
                 if (ActivePack != null)
@@ -96,158 +97,93 @@ namespace TinasLabb03.ViewModel
                 }
                 else
                 {
-                    MessageBox.Show("No active question pack selected. Please select a pack before starting the game.", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("No active question pack selected. Please select a pack before starting the game.",
+                        "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             });
+            ManageCategoriesCommand = new DelegateCommand(obj => OpenCategoryManagement());
 
-            // Ladda data asynkront vid start
+            // Ladda data från databasen vid start
             Task.Run(LoadDataAsync);
         }
 
-        // Exempel på async-metod för att skapa ett nytt pack.
-        private async Task CreatePackAsync()
-        {
-            // Skapa en ny QuestionPack med defaultkategori "General"
-            var newPack = new QuestionPack("New Pack", Difficulty.Medium, 30, "General");
-            var newPackViewModel = new QuestionPackViewModel(newPack);
-
-            // Hämta kategorier från databasen via CategoryRepository
-            var categories = await _categoryRepo.GetAllAsync();
-
-            // Om inga kategorier finns, skapa en defaultkategori "General"
-            if (!categories.Any())
-            {
-                var defaultCategory = new Category("General");
-                await _categoryRepo.AddAsync(defaultCategory);
-                categories = new List<Category> { defaultCategory };
-            }
-
-            // Skapa dialogen och skicka med listan med kategorier
-            var dialog = new CreateNewPackDialog(newPackViewModel, Difficulties, categories);
-            if (dialog.ShowDialog() == true)
-            {
-                await _questionPackRepo.AddAsync(newPack);
-                Packs.Add(newPackViewModel);
-                ActivePack = newPackViewModel;
-            }
-        }
-
-        // Skapar flera kategorier i en initialiseringsmetod
+        /// <summary>
+        /// Initierar default-kategorier om de inte redan finns.
+        /// </summary>
         private async Task InitializeCategoriesAsync()
         {
-            var existingCategories = await _categoryRepo.GetAllAsync();
-            if (!existingCategories.Any())
+            try
             {
-                var categoriesToAdd = new List<Category>
-        {
-            new Category("Entertainment"),
-            new Category("Science"),
-            new Category("Geography"),
-            new Category("History"),
-            new Category("Pop Culture")
-        };
-
-                foreach (var cat in categoriesToAdd)
+                var existingCategories = await _categoryRepo.GetAllAsync();
+                if (!existingCategories.Any())
                 {
-                    await _categoryRepo.AddAsync(cat);
+                    var categoriesToAdd = new List<Category>
+                {
+                    new Category("General"),
+                    new Category("Entertainment"),
+                    new Category("Science"),
+                    new Category("Geography"),
+                    new Category("History"),
+                    new Category("Pop Culture")
+                };
+
+                    foreach (var cat in categoriesToAdd)
+                    {
+                        await _categoryRepo.AddAsync(cat);
+                    }
                 }
             }
-        }
-
-        // Tar bort det aktiva frågepaketet från MongoDB och den lokala samlingen.
-        private async Task DeleteActivePackAsync()
-        {
-            if (ActivePack != null)
+            catch (Exception)
             {
-                await _questionPackRepo.DeleteAsync(ActivePack.Id!);
-                Packs.Remove(ActivePack);
-                ActivePack = Packs.FirstOrDefault();
+                System.Diagnostics.Debug.WriteLine("Error in InitializeCategoriesAsync:");
             }
         }
 
-        private bool CanDeletePack(object? obj) => ActivePack != null;
-
-        // Lägger till en ny fråga i det aktiva paketet och uppdaterar MongoDB.
-        private void AddQuestion(object? obj)
+        /// <summary>
+        /// Skapar ett default-questionpack med två exempel-frågor och sparar det i databasen.
+        /// </summary>
+        private async Task CreateDefaultPackAsync()
         {
-            if (ActivePack != null)
-            {
-                var newQuestion = new Question("New Question", "", new[] { "", "", "" }, Difficulty.Medium);
-                var newQuestionViewModel = new QuestionViewModel(newQuestion);
-                ActivePack.Questions.Add(newQuestionViewModel);
-                _ = _questionPackRepo.UpdateAsync(ConvertToModel(ActivePack));
-            }
+            var defaultPack = new QuestionPack("Default Pack", Difficulty.Medium, 30, "General");
+
+            var question1 = new Question(
+                "Vad är huvudstaden i Frankrike?",
+                "Paris",
+                new string[] { "Berlin", "Madrid", "Rom" },
+                Difficulty.Medium
+            );
+            var question2 = new Question(
+                "Vilket ämne studerar man i kemi?",
+                "Kemiska reaktioner",
+                new string[] { "Historia", "Fysik", "Biologi" },
+                Difficulty.Easy
+            );
+
+            defaultPack.Questions.Add(question1);
+            defaultPack.Questions.Add(question2);
+
+            await _questionPackRepo.AddAsync(defaultPack);
+
+            var defaultPackVM = new QuestionPackViewModel(defaultPack);
+            Packs.Add(defaultPackVM);
+            ActivePack = defaultPackVM;
         }
 
-        // Tar bort en fråga från det aktiva paketet och uppdaterar MongoDB.
-        private void RemoveQuestion(object? obj)
-        {
-            if (ActivePack != null && ActivePack.Questions.Any())
-            {
-                var questionToRemove = ActivePack.Questions.LastOrDefault();
-                if (questionToRemove != null)
-                {
-                    ActivePack.Questions.Remove(questionToRemove);
-                    _ = _questionPackRepo.UpdateAsync(ConvertToModel(ActivePack));
-                }
-            }
-        }
-
-        private bool CanModifyPack(object? obj) => ActivePack != null;
-
-        // Öppnar en dialog för att redigera inställningar för det aktiva paketet.
-        // Vid spara uppdateras paketet i MongoDB.
-        private void OpenPackOptions(object? obj)
-        {
-            if (ActivePack != null)
-            {
-                var dialog = new PackOptionsDialog(ActivePack);
-                bool? result = dialog.ShowDialog();
-                if (result == true)
-                {
-                    RaisePropertyChanged(nameof(ActivePack));
-                    _ = _questionPackRepo.UpdateAsync(ConvertToModel(ActivePack));
-                }
-            }
-        }
-
-        private void ExitApplication(object? obj) => Application.Current.Shutdown();
-
-        private void ToggleFullScreen(object? obj)
-        {
-            if (Application.Current.MainWindow is { } mainWindow)
-            {
-                var isFullscreen = mainWindow.WindowState == WindowState.Normal;
-                mainWindow.WindowState = isFullscreen ? WindowState.Maximized : WindowState.Normal;
-                mainWindow.WindowStyle = isFullscreen ? WindowStyle.None : WindowStyle.SingleBorderWindow;
-                if (CurrentView is PlayerViewModel playerViewModel)
-                {
-                    playerViewModel.AdjustScaleForFullscreen(isFullscreen);
-                }
-            }
-        }
-
-        private void SelectPack(object? obj)
-        {
-            if (obj is QuestionPackViewModel selectedPack)
-            {
-                ActivePack = selectedPack;
-            }
-        }
-
-        // Laddar alla QuestionPacks från MongoDB och uppdaterar den lokala samlingen.
+        /// <summary>
+        /// Laddar alla QuestionPacks från databasen. Om inga finns, skapas ett default-pack.
+        /// </summary>
         public async Task LoadDataAsync()
         {
             try
             {
-                var packs = await _questionPackRepo.GetAllAsync();
+                // Säkerställ att kategorierna finns
+                await InitializeCategoriesAsync();
 
-                // Om inga packs finns, skapa ett default pack
-                if (!packs.Any())
+                var packs = await _questionPackRepo.GetAllAsync();
+                if (!packs.Any() || !packs.Any(p => p.Name == "Default Pack"))
                 {
-                    var defaultPack = new QuestionPack("Default Pack", Difficulty.Medium, 30, "General");
-                    await _questionPackRepo.AddAsync(defaultPack);
-                    packs = new System.Collections.Generic.List<QuestionPack> { defaultPack };
+                    await CreateDefaultPackAsync();
+                    packs = await _questionPackRepo.GetAllAsync();
                 }
 
                 Application.Current.Dispatcher.Invoke(() =>
@@ -266,57 +202,127 @@ namespace TinasLabb03.ViewModel
             }
         }
 
-        // Konverterar ett QuestionPackViewModel till dess modellvariant för att spara i databasen.
-        private QuestionPack ConvertToModel(QuestionPackViewModel vm)
+        /// <summary>
+        /// Skapar ett nytt Question Pack via dialog.
+        /// Hämtar kategorier från databasen och skickar med dem till dialogen.
+        /// </summary>
+
+        private async Task CreatePackAsync()
         {
-            var pack = new QuestionPack(
-                vm.Name,
-                vm.Difficulty,
-                vm.TimeLimitInSeconds,
-                vm.Category
-            );
-            pack.Id = vm.Id; // Kopiera Id om det finns
-            pack.Questions = new ObservableCollection<Question>(
-                vm.Questions.Select(qvm => new Question(
-                    qvm.Query,
-                    qvm.CorrectAnswer,
-                    qvm.Options.Select(o => o.Text).ToArray(),
-                    qvm.Difficulty
-                ))
-            );
-            return pack;
+            var newPack = new QuestionPack("New Pack", Difficulty.Medium, 30, "General");
+            var newPackViewModel = new QuestionPackViewModel(newPack);
+
+            var categories = await _categoryRepo.GetAllAsync();
+            if (!categories.Any())
+            {
+                var defaultCategory = new Category("General");
+                await _categoryRepo.AddAsync(defaultCategory);
+                categories = new List<Category> { defaultCategory };
+            }
+
+            // Skapa dialogen med Pack, Difficulties och Categories
+            var dialog = new CreateNewPackDialog(newPackViewModel, Difficulties, categories);
+            if (dialog.ShowDialog() == true)
+            {
+                await _questionPackRepo.AddAsync(newPack);
+                Packs.Add(newPackViewModel);
+                ActivePack = newPackViewModel;
+            }
+        }
+
+        /// <summary>
+        /// Tar bort det aktiva Question Pack från databasen.
+        /// </summary>
+        private async Task DeleteActivePackAsync()
+        {
+            if (ActivePack != null)
+            {
+                await _questionPackRepo.DeleteAsync(ActivePack.Id!);
+                Packs.Remove(ActivePack);
+                ActivePack = Packs.FirstOrDefault();
+            }
+        }
+
+        private bool CanDeletePack(object? obj) => ActivePack != null;
+
+        private void AddQuestion(object? obj)
+        {
+            if (ActivePack != null)
+            {
+                var newQuestion = new Question("New Question", "", new[] { "", "", "" }, Difficulty.Medium);
+                var newQuestionViewModel = new QuestionViewModel(newQuestion);
+                ActivePack.Questions.Add(newQuestionViewModel);
+            }
+        }
+
+        private void RemoveQuestion(object? obj)
+        {
+            if (ActivePack != null && ActivePack.Questions.Any())
+            {
+                ActivePack.Questions.Remove(ActivePack.Questions.Last());
+            }
+        }
+
+        private bool CanModifyPack(object? obj) => ActivePack != null;
+
+        /// <summary>
+        /// Öppnar PackOptionsDialog för att redigera inställningar för det aktiva packet.
+        /// Skickar med Difficulties och en lista med kategorier (här hämtas från databasen).
+        /// </summary>
+        private async void OpenPackOptions(object? obj)
+        {
+            if (ActivePack != null)
+            {
+                var categories = await _categoryRepo.GetAllAsync();
+                var dialog = new PackOptionsDialog(ActivePack, Difficulties, categories);
+                if (dialog.ShowDialog() == true)
+                {
+                    RaisePropertyChanged(nameof(ActivePack));
+                    // Du kan lägga till en uppdateringsmetod här om packet ska sparas
+                }
+            }
+        }
+
+        /// <summary>
+        /// Öppnar CategoryManagementDialog så att användaren kan lägga till/ta bort kategorier.
+        /// </summary>
+
+        public void OpenCategoryManagement()
+        {
+            var dialog = new CategoryManagementDialog(_categoryRepo);
+            dialog.ShowDialog();
+        }
+
+        // Applikationshantering
+        private void ExitApplication(object? obj) => Application.Current.Shutdown();
+
+        private void ToggleFullScreen(object? obj)
+        {
+            if (Application.Current.MainWindow is { } mainWindow)
+            {
+                bool isFullscreen = mainWindow.WindowState == WindowState.Normal;
+                mainWindow.WindowState = isFullscreen ? WindowState.Maximized : WindowState.Normal;
+                mainWindow.WindowStyle = isFullscreen ? WindowStyle.None : WindowStyle.SingleBorderWindow;
+
+                if (CurrentView is PlayerViewModel playerViewModel)
+                {
+                    playerViewModel.AdjustScaleForFullscreen(isFullscreen);
+                }
+            }
+        }
+
+        private void SelectPack(object? obj)
+        {
+            if (obj is QuestionPackViewModel selectedPack)
+            {
+                ActivePack = selectedPack;
+            }
+        }
+
+        // Stub för SaveDataAsync – ej nödvändig då data sparas direkt via repository
+        public async Task SaveDataAsync()
+        {
+            await Task.CompletedTask;
         }
     }
 }
-// SaveDataAsync används ej då databasen uppdateras direkt via repository.
-//public async Task SaveDataAsync()
-//{
-//    try
-//    {
-//        var packs = Packs.Select(p =>
-//        {
-//            var pack = new QuestionPack(
-//                p.Name,
-//                p.Difficulty,
-//                p.TimeLimitInSeconds,
-//                p.Category ?? "DefaultCategory"
-//            );
-//            pack.Questions = new ObservableCollection<Question>(p.Questions.Select(q => new Question(
-//                q.Query,
-//                q.CorrectAnswer,
-//                q.Options.Where(option => option.Text != q.CorrectAnswer)
-//                         .Select(option => option.Text)
-//                         .ToArray(),
-//                q.Difficulty
-//            )));
-//            return pack;
-//        }).ToArray();
-
-//        string json = JsonSerializer.Serialize(packs, JsonOptions);
-//        await File.WriteAllTextAsync(FilePath, json);
-//    }
-//    catch (Exception ex)
-//    {
-//        Console.WriteLine($"Error saving data: {ex.Message}");
-//    }
-//}

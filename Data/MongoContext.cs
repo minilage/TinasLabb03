@@ -15,7 +15,6 @@ namespace TinasLabb03.Data
             // Hårdkodad anslutningssträng och databasnamn
             var connectionString = "mongodb://localhost:27017";
             var databaseName = "TinaLagesson";
-
             var client = new MongoClient(connectionString);
             _database = client.GetDatabase(databaseName);
         }
