@@ -8,8 +8,13 @@ namespace TinasLabb03.ViewModel
 
     public class ConfigurationViewModel : ViewModelBase
     {
-        private readonly MainWindowViewModel mainWindowViewModel;
+        private readonly MainWindowViewModel? mainWindowViewModel;
+
+
+        public QuestionPackViewModel? ActivePack => mainWindowViewModel?.ActivePack;
+
         private QuestionViewModel? _selectedQuestion;
+
         private bool _isRightPanelVisible;
 
         public static IEnumerable<Difficulty> Difficulties => Enum.GetValues(typeof(Difficulty)).Cast<Difficulty>();
@@ -28,8 +33,6 @@ namespace TinasLabb03.ViewModel
 
             ManageCategoriesCommand = new DelegateCommand(obj => mainWindowViewModel.OpenCategoryManagement());
         }
-
-        public QuestionPackViewModel? ActivePack => mainWindowViewModel.ActivePack;
 
         public QuestionViewModel? SelectedQuestion
         {

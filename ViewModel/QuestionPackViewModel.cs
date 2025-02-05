@@ -8,6 +8,8 @@ namespace TinasLabb03.ViewModel
     {
         private readonly QuestionPack model;
 
+        public ObservableCollection<QuestionViewModel> Questions { get; }
+
         public QuestionPackViewModel(QuestionPack model)
         {
             this.model = model;
@@ -50,7 +52,6 @@ namespace TinasLabb03.ViewModel
                 RaisePropertyChanged();
             }
         }
-
         // Exponerar kategori så att UI:t kan binda mot den
         public string Category
         {

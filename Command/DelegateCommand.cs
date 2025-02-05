@@ -4,8 +4,8 @@ namespace TinasLabb03.Command
 {
     public class DelegateCommand : ICommand
     {
-        private readonly Action<object?> execute;
-        private readonly Func<object?, bool>? canExecute;
+        private readonly Action<object> execute;
+        private readonly Func<object?, bool> canExecute;
 
         public event EventHandler? CanExecuteChanged;
 
@@ -24,10 +24,6 @@ namespace TinasLabb03.Command
         public bool CanExecute(object? parameter) => canExecute?.Invoke(parameter) ?? true;
 
         // Exekverar kommandots logik
-        public void Execute(object? parameter)
-        {
-            // Tillåt null-argument för kommandon som inte behöver en parameter
-            execute(parameter);
-        }
+        public void Execute(object? parameter) => execute(parameter);
     }
 }

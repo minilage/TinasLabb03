@@ -22,6 +22,7 @@
     <Grid>
         <!-- Sätt bakgrund direkt på menyn -->
         <Menu Background="#FF319031">
+            
             <!-- File Menu -->
             <MenuItem Header="_File">
                 <MenuItem Header="_New Question Pack"
