@@ -9,23 +9,27 @@ namespace TinasLabb03.Dialogs
 
     public partial class PackOptionsDialog : Window
     {
+        private ConfigurationViewModel configurationViewModel;
+
         /// <summary>
         /// Konstruktor som sätter DataContext med Pack, Difficulties och Categories.
         /// Här skickas även en lista med tillgängliga kategorier.
         /// Om du inte vill redigera kategorier här, kan du skicka in null eller en tom lista.
         /// </summary>
 
-        public PackOptionsDialog(QuestionPackViewModel activePack, IEnumerable<Difficulty> difficulties, IEnumerable<Category>? categories)
+        public PackOptionsDialog(QuestionPackViewModel activePack, IEnumerable<Difficulty> difficulties, IEnumerable<Category>? categories, IEnumerable<TimeLimitInSeconds> timeLimitInSeconds)
         {
             InitializeComponent();
             // Om ingen lista med kategorier skickas in, använd en tom lista.
             categories ??= new List<Category>();
-            DataContext = new
-            {
-                Pack = activePack,
-                Difficulties = difficulties,
-                Categories = categories
-            };
+            //{
+            //    Pack = activePack,
+            //};
+        }
+
+        public PackOptionsDialog(ConfigurationViewModel configurationViewModel)
+        {
+            this.configurationViewModel = configurationViewModel;
         }
 
         // Hanterar "Save"-knappen

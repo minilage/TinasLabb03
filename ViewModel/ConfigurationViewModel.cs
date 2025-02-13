@@ -11,6 +11,7 @@ namespace TinasLabb03.ViewModel
         private readonly MainWindowViewModel mainWindowViewModel;
         private QuestionViewModel? _selectedQuestion;
         private bool _isRightPanelVisible;
+        private object Categories;
 
         public static IEnumerable<Difficulty> Difficulties => Enum.GetValues(typeof(Difficulty)).Cast<Difficulty>();
 
@@ -82,7 +83,8 @@ namespace TinasLabb03.ViewModel
             if (ActivePack != null)
             {
                 // Vid öppnande av PackOptionsDialog kan redigering av packinställningar göras
-                var dialog = new PackOptionsDialog(ActivePack, Difficulties, null);
+                var dialog = new PackOptionsDialog(ActivePack, Difficulties, null, Categories);
+
                 if (dialog.ShowDialog() == true)
                 {
                     RaisePropertyChanged(nameof(ActivePack));

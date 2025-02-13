@@ -75,7 +75,7 @@
                     Width="18"
                     Height="18"
                     Margin="5,0,0,0"
-                    Command="{Binding ConfigurationViewModel.RemoveQuestionCommand}"
+                    Command="{Binding RemoveQuestionCommand}"
                     Content="{fa:Icon Minus}" />
             </StackPanel>
         </Grid>

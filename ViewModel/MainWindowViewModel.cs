@@ -29,6 +29,9 @@ namespace TinasLabb03.ViewModel
                 _activePack = value;
                 ConfigurationViewModel.RaisePropertyChanged(nameof(ActivePack));
                 RaisePropertyChanged();
+                ConfigurationViewModel.AddQuestionCommand.RaiseCanExecuteChanged();
+                ConfigurationViewModel.RemoveQuestionCommand.RaiseCanExecuteChanged();
+                ConfigurationViewModel.PackOptionsCommand.RaiseCanExecuteChanged();
             }
         }
 

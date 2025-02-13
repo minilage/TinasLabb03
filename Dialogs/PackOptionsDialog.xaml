@@ -42,7 +42,7 @@
 
             <!--  ComboBox för att välja kategori  -->
             <Label
-                Content="Category:"
+                Content="Category:" 
                 FontSize="12"
                 FontWeight="Bold" />
             <ComboBox
