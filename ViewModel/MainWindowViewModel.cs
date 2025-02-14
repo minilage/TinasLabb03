@@ -216,6 +216,7 @@ namespace TinasLabb03.ViewModel
             var newPackViewModel = new QuestionPackViewModel(newPack);
 
             var categories = await _categoryRepo.GetAllAsync();
+
             if (!categories.Any())
             {
                 var defaultCategory = new Category("General");
@@ -223,8 +224,14 @@ namespace TinasLabb03.ViewModel
                 categories = new List<Category> { defaultCategory };
             }
 
+            List<string> shownCategories = new List<string>();
+            foreach (var category in categories)
+            {
+                shownCategories.Add(category.Name);
+            }
+
             // Skapa dialogen med Pack, Difficulties och Categories
-            var dialog = new CreateNewPackDialog(newPackViewModel, Difficulties, categories);
+            var dialog = new CreateNewPackDialog(newPackViewModel, Difficulties, shownCategories);
             if (dialog.ShowDialog() == true)
             {
                 await _questionPackRepo.AddAsync(newPack);
@@ -277,7 +284,7 @@ namespace TinasLabb03.ViewModel
             if (ActivePack != null)
             {
                 var categories = await _categoryRepo.GetAllAsync();
-                var dialog = new PackOptionsDialog(ActivePack, Difficulties, categories);
+                var dialog = new PackOptionsDialog(ActivePack, Difficulties, categories, ActivePack.TimeLimitInSeconds);
                 if (dialog.ShowDialog() == true)
                 {
                     RaisePropertyChanged(nameof(ActivePack));

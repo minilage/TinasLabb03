@@ -50,8 +50,7 @@
                 Height="25"
                 Margin="0,0,0,5"
                 ItemsSource="{Binding Categories}"
-                SelectedValue="{Binding Pack.Category, Mode=TwoWay}"
-                SelectedValuePath="Name" />
+                SelectedValue="{Binding Pack.Category, Mode=TwoWay}" />
 
             <!--  ComboBox för att välja svårighetsgrad  -->
             <Label
