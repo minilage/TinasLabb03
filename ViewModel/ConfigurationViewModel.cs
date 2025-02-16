@@ -1,4 +1,6 @@
-﻿using TinasLabb03.Command;
+﻿using System.Timers;
+using System.Windows;
+using TinasLabb03.Command;
 using TinasLabb03.Dialogs;
 using TinasLabb03.Model;
 
@@ -11,6 +13,8 @@ namespace TinasLabb03.ViewModel
         private readonly MainWindowViewModel mainWindowViewModel;
         private QuestionViewModel? _selectedQuestion;
         private bool _isRightPanelVisible;
+        private System.Timers.Timer? _autoSaveTimer;
+
 
         public static IEnumerable<Difficulty> Difficulties => Enum.GetValues(typeof(Difficulty)).Cast<Difficulty>();
 
@@ -25,23 +29,49 @@ namespace TinasLabb03.ViewModel
             AddQuestionCommand = new DelegateCommand(AddQuestion, CanModifyPack);
             RemoveQuestionCommand = new DelegateCommand(RemoveQuestion, CanModifyPack);
             PackOptionsCommand = new DelegateCommand(OpenPackOptions, CanModifyPack);
-
             ManageCategoriesCommand = new DelegateCommand(obj => mainWindowViewModel.OpenCategoryManagement());
+
+            // Initiera autosave-timer (ingen start än)
+            _autoSaveTimer = new System.Timers.Timer(2000);  // 2000 ms = 2 sekunder
+            _autoSaveTimer.AutoReset = false;
+            _autoSaveTimer.Elapsed += AutoSaveTimer_Elapsed;
         }
 
         public QuestionPackViewModel? ActivePack => mainWindowViewModel.ActivePack;
 
+        // När SelectedQuestion ändras, prenumerera på dess PropertyChanged
         public QuestionViewModel? SelectedQuestion
         {
             get => _selectedQuestion;
             set
             {
+                if (_selectedQuestion != null)
+                {
+                    _selectedQuestion.PropertyChanged -= SelectedQuestion_PropertyChanged;
+                }
                 _selectedQuestion = value;
+                if (_selectedQuestion != null)
+                {
+                    _selectedQuestion.PropertyChanged += SelectedQuestion_PropertyChanged;
+                }
                 IsRightPanelVisible = value != null; // Visa högerpanelen om en fråga är vald
                 RaisePropertyChanged();
                 RaisePropertyChanged(nameof(IsRightPanelVisible));
             }
         }
+
+        private void SelectedQuestion_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            // Vid varje ändring, starta om timern
+            _autoSaveTimer?.Stop();
+            _autoSaveTimer?.Start();
+        }
+
+        private async void AutoSaveTimer_Elapsed(object? sender, ElapsedEventArgs e)
+        {
+            await Application.Current.Dispatcher.InvokeAsync(() => mainWindowViewModel.UpdateActivePackAsync());
+        }
+
 
         public bool IsRightPanelVisible
         {
@@ -57,7 +87,7 @@ namespace TinasLabb03.ViewModel
         public DelegateCommand RemoveQuestionCommand { get; }
         public DelegateCommand PackOptionsCommand { get; }
 
-        private void AddQuestion(object? obj)
+        private async void AddQuestion(object? obj)
         {
             if (ActivePack != null)
             {
@@ -65,25 +95,32 @@ namespace TinasLabb03.ViewModel
                 var newQuestionViewModel = new QuestionViewModel(newQuestion);
                 ActivePack.Questions.Add(newQuestionViewModel);
                 SelectedQuestion = newQuestionViewModel;
+
+                // Uppdatera databasen direkt efter att vi lagt till frågan
+                await mainWindowViewModel.UpdateActivePackAsync();
+
             }
         }
 
-        private void RemoveQuestion(object? obj)
+        private async void RemoveQuestion(object? obj)
         {
             if (ActivePack != null && SelectedQuestion != null)
             {
                 ActivePack.Questions.Remove(SelectedQuestion);
                 SelectedQuestion = null;
+
+                // Uppdatera databasen direkt efter att vi lagt till frågan
+                await mainWindowViewModel.UpdateActivePackAsync();
             }
         }
 
-        private void OpenPackOptions(object? obj)
+        private async void OpenPackOptions(object? obj)
         {
             if (ActivePack != null)
             {
-                // Vid öppnande av PackOptionsDialog kan redigering av packinställningar göras
-                var dialog = new PackOptionsDialog(ActivePack, Difficulties, null, ActivePack.TimeLimitInSeconds);
-
+                var categoriesFromDb = await mainWindowViewModel.CategoryRepo.GetAllAsync();
+                var categoryNames = categoriesFromDb.Select(c => c.Name);
+                var dialog = new PackOptionsDialog(ActivePack, Difficulties, categoryNames, ActivePack.TimeLimitInSeconds);
                 if (dialog.ShowDialog() == true)
                 {
                     RaisePropertyChanged(nameof(ActivePack));

@@ -38,7 +38,7 @@
                 Height="25"
                 Margin="0,0,0,5"
                 BorderBrush="#FF7C7F88"
-                Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                Text="{Binding Pack.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
             <!--  ComboBox för att välja kategori  -->
             <Label
@@ -49,19 +49,18 @@
                 Height="25"
                 Margin="0,0,0,5"
                 ItemsSource="{Binding Categories}"
-                SelectedValue="{Binding Category, Mode=TwoWay}"
-                SelectedValuePath="Name" />
+                SelectedValue="{Binding Pack.Category, Mode=TwoWay}" />
 
-            <!--  ComboBox för att välja svårighetsgrad  -->
+                <!--  ComboBox för att välja svårighetsgrad  -->
             <Label
                 Content="Difficulty:"
                 FontSize="12"
                 FontWeight="Bold" />
-            <ComboBox
-                Height="25"
+            <ComboBox 
+                Height="25" 
                 Margin="0,0,0,10"
                 ItemsSource="{Binding Difficulties}"
-                SelectedValue="{Binding Difficulty, Mode=TwoWay}" />
+                SelectedValue="{Binding Pack.Difficulty, Mode=TwoWay}" />
 
             <!--  Slider för att ställa in tidsgräns per fråga  -->
             <Label
@@ -77,10 +76,10 @@
                 Minimum="5"
                 TickFrequency="5"
                 TickPlacement="BottomRight"
-                Value="{Binding TimeLimitInSeconds, Mode=TwoWay}" />
+                Value="{Binding Pack.TimeLimitInSeconds}" />
             <Label
                 HorizontalAlignment="Center"
-                Content="{Binding TimeLimitInSeconds}"
+                Content="{Binding Pack.TimeLimitInSeconds}"
                 FontWeight="Regular" />
         </StackPanel>
 

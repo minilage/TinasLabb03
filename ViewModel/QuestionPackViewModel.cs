@@ -62,10 +62,30 @@ namespace TinasLabb03.ViewModel
             }
         }
 
+
         // Lista med frågor (ViewModels) i paketet.
         public ObservableCollection<QuestionViewModel> Questions { get; }
 
         // Konverterar detta QuestionPackViewModel till Modelobjektet.
-        public QuestionPack ToModel() => model;
+        //public QuestionPack ToModel() => model;
+
+        public QuestionPack ToModel()
+        {
+            // Kopiera grundläggande egenskaper
+            model.Name = this.Name;
+            model.Difficulty = this.Difficulty;
+            model.TimeLimitInSeconds = this.TimeLimitInSeconds;
+            model.Category = this.Category;
+
+            // Töm modellens Questions och fyll på med nya
+            model.Questions.Clear();
+            foreach (var qvm in this.Questions)
+            {
+                model.Questions.Add(qvm.ToModel());
+            }
+
+            return model;
+        }
+
     }
 }

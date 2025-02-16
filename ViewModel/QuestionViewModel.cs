@@ -74,6 +74,21 @@ namespace TinasLabb03.ViewModel
             }
         }
 
+        public Question ToModel()
+        {
+            // Om du har ett privat fält "model" kan du antingen bara returnera det:
+            // return model;
+
+            // ...eller skapa en ny Question om du vill kopiera fält för fält:
+            return new Question
+            {
+                Query = this.Query,
+                CorrectAnswer = this.CorrectAnswer,
+                IncorrectAnswers = this.IncorrectAnswers.ToArray(),
+                Difficulty = this.Difficulty
+            };
+        }
+
         public QuestionViewModel(Question model)
         {
             this.model = model;

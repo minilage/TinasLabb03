@@ -20,6 +20,7 @@ namespace TinasLabb03.ViewModel
         // Egenskaper
         public ObservableCollection<QuestionPackViewModel> Packs { get; set; } = new();
         public static IEnumerable<Difficulty> Difficulties => Enum.GetValues(typeof(Difficulty)).Cast<Difficulty>();
+        public CategoryRepository CategoryRepo => _categoryRepo;
 
         public QuestionPackViewModel? ActivePack
         {
@@ -255,21 +256,35 @@ namespace TinasLabb03.ViewModel
 
         private bool CanDeletePack(object? obj) => ActivePack != null;
 
-        private void AddQuestion(object? obj)
+        private async void AddQuestion(object? obj)
         {
             if (ActivePack != null)
             {
                 var newQuestion = new Question("New Question", "", new[] { "", "", "" }, Difficulty.Medium);
                 var newQuestionViewModel = new QuestionViewModel(newQuestion);
                 ActivePack.Questions.Add(newQuestionViewModel);
+
+                // Uppdatera databasen direkt efter att vi lagt till frågan
+                await _questionPackRepo.UpdateAsync(ActivePack.ToModel());
             }
         }
 
-        private void RemoveQuestion(object? obj)
+        private async void RemoveQuestion(object? obj)
         {
             if (ActivePack != null && ActivePack.Questions.Any())
             {
                 ActivePack.Questions.Remove(ActivePack.Questions.Last());
+
+                // Uppdatera databasen direkt efter att vi lagt till frågan
+                await _questionPackRepo.UpdateAsync(ActivePack.ToModel());
+            }
+        }
+
+        public async Task UpdateActivePackAsync()
+        {
+            if (ActivePack != null)
+            {
+                await _questionPackRepo.UpdateAsync(ActivePack.ToModel());
             }
         }
 
@@ -279,19 +294,27 @@ namespace TinasLabb03.ViewModel
         /// Öppnar PackOptionsDialog för att redigera inställningar för det aktiva packet.
         /// Skickar med Difficulties och en lista med kategorier (här hämtas från databasen).
         /// </summary>
+
         private async void OpenPackOptions(object? obj)
         {
             if (ActivePack != null)
             {
-                var categories = await _categoryRepo.GetAllAsync();
-                var dialog = new PackOptionsDialog(ActivePack, Difficulties, categories, ActivePack.TimeLimitInSeconds);
+                // Hämta kategorierna från databasen
+                var categoriesFromDb = await _categoryRepo.GetAllAsync();
+
+                // Konvertera Category‑objekten till en lista med strängar (kategorinamn)
+                var categoryNames = categoriesFromDb.Select(c => c.Name);
+
+                // Skapa dialogen med de konverterade kategorinamnen
+                var dialog = new PackOptionsDialog(ActivePack, Difficulties, categoryNames, ActivePack.TimeLimitInSeconds);
+
                 if (dialog.ShowDialog() == true)
                 {
                     RaisePropertyChanged(nameof(ActivePack));
-                    // Du kan lägga till en uppdateringsmetod här om packet ska sparas
                 }
             }
         }
+
 
         /// <summary>
         /// Öppnar CategoryManagementDialog så att användaren kan lägga till/ta bort kategorier.
