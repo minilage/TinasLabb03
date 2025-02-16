@@ -184,6 +184,7 @@ namespace TinasLabb03.ViewModel
             if (parameter is not AnswerOptionViewModel selectedOption || mainWindowViewModel.ActivePack == null)
                 return;
 
+            // Avaktivera möjligheten att gissa på alla alternativ
             foreach (var option in Options)
             {
                 option.CanGuess = false;
@@ -214,9 +215,12 @@ namespace TinasLabb03.ViewModel
                 Score++; // Öka poängen endast vid rätt svar
             }
 
-            RaisePropertyChanged(nameof(Options)); // Update UI bindings
+            RaisePropertyChanged(nameof(Options)); // Update UI
 
-            // Kontrollera om detta var den sista frågan
+            // Stoppa timern direkt så att den inte fortsätter nedräkningen
+            timer.Stop();
+
+            // Om detta var den sista frågan, visa resultat efter kort fördröjning
             if (_currentQuestionIndex + 1 >= mainWindowViewModel.ActivePack.Questions.Count)
             {
                 // Visa resultatpopup med en kort fördröjning
@@ -231,9 +235,10 @@ namespace TinasLabb03.ViewModel
                 Task.Delay(1000).ContinueWith(_ =>
                 {
                     _currentQuestionIndex++;
-                    // Återställ timern för nästa fråga med tiden per fråga
+                    // Återställ timern för nästa fråga
                     _timeLeft = mainWindowViewModel.ActivePack?.TimeLimitInSeconds ?? 30;
                     LoadQuestion();
+                    timer.Start(); // Starta timern igen
                 }, TaskScheduler.FromCurrentSynchronizationContext());
             }
         }

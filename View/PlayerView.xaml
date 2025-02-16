@@ -9,6 +9,11 @@
     d:DesignWidth="800"
     mc:Ignorable="d">
 
+    <UserControl.InputBindings>
+        <!-- Bind Esc-tangenten till QuitCommand -->
+        <KeyBinding Key="Esc" Command="{Binding QuitCommand}" />
+    </UserControl.InputBindings>
+    
     <UserControl.LayoutTransform>
         <ScaleTransform ScaleX="{Binding ScaleFactor}" ScaleY="{Binding ScaleFactor}" />
     </UserControl.LayoutTransform>

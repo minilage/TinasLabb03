@@ -74,12 +74,38 @@ namespace TinasLabb03
 
             if (e.Key == Key.Escape)
             {
-                if (WindowState == WindowState.Maximized) // Kontrollera om vi är i helskärmsläge
+                if (DataContext is MainWindowViewModel vm)
                 {
-                    ExitFullScreen(); // Lämna helskärmsläge
+                    // Om vi är i PlayerView
+                    if (vm.CurrentView is PlayerViewModel playerViewModel)
+                    {
+                        // Om vi är i fullscreen (maximized) så lämnar vi fullscreen först.
+                        if (WindowState == WindowState.Maximized)
+                        {
+                            ExitFullScreen();
+                        }
+                        else
+                        {
+                            // Om vi är i normalt läge, byt tillbaka till ConfigurationView.
+                            vm.CurrentView = vm.ConfigurationViewModel;
+                        }
+                    }
                 }
             }
         }
+
+        //protected override void OnPreviewKeyDown(KeyEventArgs e)
+        //{
+        //    base.OnPreviewKeyDown(e);
+
+        //    if (e.Key == Key.Escape)
+        //    {
+        //        if (WindowState == WindowState.Maximized) // Kontrollera om vi är i helskärmsläge
+        //        {
+        //            ExitFullScreen(); // Lämna helskärmsläge
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Återställer fönstrets state och stil från fullscreen till normalt läge.
