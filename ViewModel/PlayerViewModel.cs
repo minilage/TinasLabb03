@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Threading;
 using TinasLabb03.Command;
+using TinasLabb03.Dialogs;
 
 namespace TinasLabb03.ViewModel
 {
@@ -292,12 +293,19 @@ namespace TinasLabb03.ViewModel
 
         private void ShowResultPopup()
         {
-            MessageBox.Show(
-                $"You got {Score} out of {mainWindowViewModel.ActivePack?.Questions.Count} correct!",
-                "Quiz Results",
-                MessageBoxButton.OK);
-
+            var resultDialog = new QuizResultDialog(Score, mainWindowViewModel.ActivePack?.Questions.Count ?? 0);
+            resultDialog.ShowDialog();
             QuitToMainMenu(null);
         }
+
+        //private void ShowResultPopup()
+        //{
+        //    MessageBox.Show(
+        //        $"You got {Score} out of {mainWindowViewModel.ActivePack?.Questions.Count} correct!",
+        //        "Quiz Results",
+        //        MessageBoxButton.OK);
+
+        //    QuitToMainMenu(null);
+        //}
     }
 }

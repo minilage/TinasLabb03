@@ -3,11 +3,17 @@ using TinasLabb03.Model;
 
 namespace TinasLabb03.ViewModel
 {
-    // ViewModel för ett QuestionPack, exponerar egenskaper som bindas i UI:t.
+    /// <summary>
+    /// ViewModel för ett QuestionPack. Exponerar egenskaper för bindning i UI:t.
+    /// </summary>
     public class QuestionPackViewModel : ViewModelBase
     {
         private readonly QuestionPack model;
 
+        /// <summary>
+        /// Konstruerar en QuestionPackViewModel baserad på en QuestionPack-modell.
+        /// Konverterar modellens frågor till QuestionViewModels.
+        /// </summary>
         public QuestionPackViewModel(QuestionPack model)
         {
             this.model = model;
@@ -17,7 +23,7 @@ namespace TinasLabb03.ViewModel
             );
         }
 
-        // Exponera modellens Id
+        // Exponerar modellens Id (MongoDB genererat).
         public string? Id => model.Id;
 
         // Packets namn med TwoWay-binding
@@ -51,7 +57,9 @@ namespace TinasLabb03.ViewModel
             }
         }
 
-        // Exponerar kategori så att UI:t kan binda mot den
+        /// <summary>
+        /// Kategorinamn (exempelvis "General") som används för att visa kategorin.
+        /// </summary>
         public string Category
         {
             get => model.Category;
@@ -63,21 +71,21 @@ namespace TinasLabb03.ViewModel
         }
 
 
-        // Lista med frågor (ViewModels) i paketet.
+        // Samling av frågor i paketet (som QuestionViewModels).
         public ObservableCollection<QuestionViewModel> Questions { get; }
 
-        // Konverterar detta QuestionPackViewModel till Modelobjektet.
-        //public QuestionPack ToModel() => model;
-
+        /// <summary>
+        /// Synkroniserar ViewModel med Model.
+        /// Kopierar grundläggande egenskaper och uppdaterar frågelistan.
+        /// </summary>
         public QuestionPack ToModel()
         {
-            // Kopiera grundläggande egenskaper
             model.Name = this.Name;
             model.Difficulty = this.Difficulty;
             model.TimeLimitInSeconds = this.TimeLimitInSeconds;
             model.Category = this.Category;
 
-            // Töm modellens Questions och fyll på med nya
+            // Tömmer modellens frågor och lägger till de aktuella frågorna från ViewModel
             model.Questions.Clear();
             foreach (var qvm in this.Questions)
             {
@@ -86,6 +94,5 @@ namespace TinasLabb03.ViewModel
 
             return model;
         }
-
     }
 }

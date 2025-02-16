@@ -96,7 +96,6 @@ namespace TinasLabb03.ViewModel
                 ActivePack.Questions.Add(newQuestionViewModel);
                 SelectedQuestion = newQuestionViewModel;
 
-                // Uppdatera databasen direkt efter att vi lagt till frågan
                 await mainWindowViewModel.UpdateActivePackAsync();
 
             }
@@ -109,7 +108,6 @@ namespace TinasLabb03.ViewModel
                 ActivePack.Questions.Remove(SelectedQuestion);
                 SelectedQuestion = null;
 
-                // Uppdatera databasen direkt efter att vi lagt till frågan
                 await mainWindowViewModel.UpdateActivePackAsync();
             }
         }

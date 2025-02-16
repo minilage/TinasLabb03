@@ -11,12 +11,6 @@ namespace TinasLabb03.Dialogs
         // Konstruktor som sätter DataContext med egenskaperna Pack, Difficulties och Categories.
         public CreateNewPackDialog(QuestionPackViewModel packViewModel, IEnumerable<Difficulty> difficulties, IEnumerable<string> categories)
         {
-            //List<string> shownCategories = new List<string>();
-            //foreach (var name in categories)
-            //{
-            //    shownCategories.Add(name.Name);
-            //}
-
             InitializeComponent();
             DataContext = new
             {

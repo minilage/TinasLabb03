@@ -8,13 +8,13 @@ namespace TinasLabb03.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            // Handle single binding scenario (original behavior)
+            // Hanterar singelbindningar
             if (values.Length == 1 && values[0] is bool singleSelected)
             {
                 return singleSelected ? Brushes.Green : Brushes.LightGray;
             }
 
-            // Multi-binding scenario
+            // Hanterar multibindningar
             if (values.Length >= 3)
             {
                 bool isMultiSelected = values[0] is bool && (bool)values[0];

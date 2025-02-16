@@ -94,9 +94,9 @@
                         Command="{Binding DataContext.AnswerCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                         CommandParameter="{Binding .}"
                         Content="{Binding Text}"
-                        IsEnabled="{Binding CanGuess}"
                         FontSize="{Binding DataContext.ButtonFontSize, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                        Foreground="Black">
+                        Foreground="Black"
+                        IsEnabled="{Binding CanGuess}">
                         <Button.Background>
                             <MultiBinding Converter="{StaticResource BoolToColorConverter}" FallbackValue="LightGray">
                                 <Binding Path="IsSelected" />

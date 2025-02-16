@@ -9,8 +9,6 @@ namespace TinasLabb03.Dialogs
 
     public partial class PackOptionsDialog : Window
     {
-        //private ConfigurationViewModel? configurationViewModel;
-
         public QuestionPackViewModel ActivePack { get; set; } = null!;
         public IEnumerable<Difficulty> Difficulties { get; set; } = null!;
         public IEnumerable<Category> Categories { get; set; } = null!;

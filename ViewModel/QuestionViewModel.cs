@@ -3,7 +3,10 @@ using TinasLabb03.Model;
 
 namespace TinasLabb03.ViewModel
 {
-    // ViewModel för en enskild fråga.
+    /// <summary>
+    /// ViewModel för en enskild fråga.
+    /// Hanterar bindning för fråga, korrekt svar, felaktiga svar och alternativ.
+    /// </summary>
     public class QuestionViewModel : ViewModelBase
     {
         private readonly Question model;
@@ -11,10 +14,13 @@ namespace TinasLabb03.ViewModel
 
         // Lista med felaktiga svar (enkel stränglista)
         public ObservableCollection<string> IncorrectAnswers { get; }
+
         // Lista med svarsalternativ som ViewModels
         public ObservableCollection<AnswerOptionViewModel> Options { get; }
 
-        // Det valda svarsalternativet, notifierar UI:t vid ändring.
+        /// <summary>
+        /// Det valda svarsalternativet. Notifierar UI:t vid ändring.
+        /// </summary>
         public string SelectedAnswer
         {
             get => _selectedAnswer!;
@@ -74,12 +80,31 @@ namespace TinasLabb03.ViewModel
             }
         }
 
+        /// <summary>
+        /// Konstruerar en QuestionViewModel baserad på en Question-modell.
+        /// </summary>
+        public QuestionViewModel(Question model)
+        {
+            this.model = model;
+            IncorrectAnswers = new ObservableCollection<string>(model.IncorrectAnswers);
+            Options = new ObservableCollection<AnswerOptionViewModel>();
+            UpdateOptions();
+
+            // När IncorrectAnswers ändras, uppdatera modellen och UI:t
+            IncorrectAnswers.CollectionChanged += (sender, args) =>
+            {
+                model.IncorrectAnswers = IncorrectAnswers.ToArray();
+                RaisePropertyChanged(nameof(IncorrectAnswers));
+                UpdateOptions();
+            };
+        }
+
+        /// <summary>
+        /// Skapar en ny Question-modell baserad på nuvarande värden.
+        /// Detta används för att synka ViewModel med Model.
+        /// </summary>
         public Question ToModel()
         {
-            // Om du har ett privat fält "model" kan du antingen bara returnera det:
-            // return model;
-
-            // ...eller skapa en ny Question om du vill kopiera fält för fält:
             return new Question
             {
                 Query = this.Query,
@@ -89,24 +114,10 @@ namespace TinasLabb03.ViewModel
             };
         }
 
-        public QuestionViewModel(Question model)
-        {
-            this.model = model;
-            IncorrectAnswers = new ObservableCollection<string>(model.IncorrectAnswers);
-            Options = new ObservableCollection<AnswerOptionViewModel>();
-            UpdateOptions();
-
-            // När felaktiga svar ändras, uppdatera modellen och UI:t
-            IncorrectAnswers.CollectionChanged += (sender, args) =>
-            {
-                model.IncorrectAnswers = IncorrectAnswers.ToArray();
-                RaisePropertyChanged(nameof(IncorrectAnswers));
-                UpdateOptions();
-            };
-        }
-
-        // Uppdaterar listan med svarsalternativ genom att lägga till de 
-        // felaktiga och korrekta svaren och blandar dem slumpmässigt.
+        /// <summary>
+        /// Uppdaterar svarsalternativen: kombinerar felaktiga svar och korrekt svar,
+        /// blandar dem slumpmässigt och uppdaterar Options.
+        /// </summary>
         private void UpdateOptions()
         {
             Options.Clear();

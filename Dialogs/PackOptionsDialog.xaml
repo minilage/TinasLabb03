@@ -13,11 +13,12 @@
     WindowStyle="ToolWindow"
     mc:Ignorable="d">
 
-    <!--  Bind Close-kommandot  -->
+    <!--  Kopplar Close-kommandot till en hanterare  -->
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Close" Executed="CloseCommandHandler" />
     </Window.CommandBindings>
 
+    <!--  Bindning av Esc-tangent för att stänga fönstret  -->
     <Window.InputBindings>
         <KeyBinding Key="Esc" Command="ApplicationCommands.Close" />
     </Window.InputBindings>
@@ -42,7 +43,7 @@
 
             <!--  ComboBox för att välja kategori  -->
             <Label
-                Content="Category:" 
+                Content="Category:"
                 FontSize="12"
                 FontWeight="Bold" />
             <ComboBox
@@ -51,13 +52,13 @@
                 ItemsSource="{Binding Categories}"
                 SelectedValue="{Binding Pack.Category, Mode=TwoWay}" />
 
-                <!--  ComboBox för att välja svårighetsgrad  -->
+            <!--  ComboBox för att välja svårighetsgrad  -->
             <Label
                 Content="Difficulty:"
                 FontSize="12"
                 FontWeight="Bold" />
-            <ComboBox 
-                Height="25" 
+            <ComboBox
+                Height="25"
                 Margin="0,0,0,10"
                 ItemsSource="{Binding Difficulties}"
                 SelectedValue="{Binding Pack.Difficulty, Mode=TwoWay}" />

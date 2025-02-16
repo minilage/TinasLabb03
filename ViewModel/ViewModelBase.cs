@@ -12,7 +12,10 @@ namespace TinasLabb03.ViewModel
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        /// Metod för att höja PropertyChanged-händelsen.
+        /// <summary>
+        /// Höjer PropertyChanged-händelsen.
+        /// CallerMemberName gör att man inte behöver ange property-namnet manuellt.
+        /// </summary>
         public void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
